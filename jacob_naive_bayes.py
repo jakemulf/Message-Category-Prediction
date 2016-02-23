@@ -2,7 +2,9 @@ __author__ = 'Jacob Mulford'
 
 import csv
 import string
+import sys
 import matplotlib.pyplot as plt
+from nltk.corpus import stopwords
 
 message_types = [
     'Action',
@@ -10,6 +12,7 @@ message_types = [
     'Information',
 ]
 
+ignore_words = stopwords.words('english')
 
 def remove_punctuation_and_lowercase(strn):
     """
@@ -18,11 +21,12 @@ def remove_punctuation_and_lowercase(strn):
     """
     char_list = []
     for char in strn:
-        if char not in string.punctuation:
+        if not char in string.punctuation:
             char_list.append(char)
     word_list = ((''.join(char_list)).lower()).split(' ')
 
-    return [word for word in word_list if word != '']
+    return [word for word in word_list if word != '' and word not in ignore_words]
+    #return [word for word in word_list if word != '']
 
 
 def prior_probability(csv_contents):
@@ -51,7 +55,7 @@ def likelihood(csv_contents):
     in each category
     """
     word_counts = [{} for x in message_types]
-    unique_words = []
+    unique_words = set()
 
     for i in range(1,len(csv_contents)):
         index = message_types.index(csv_contents[i][0])
@@ -60,8 +64,7 @@ def likelihood(csv_contents):
                 word_counts[index][word] += 1
             else:
                 word_counts[index][word] = 1
-            if word not in word_counts:
-                unique_words.append(word)
+            unique_words.add(word)
 
     likelihood_dict = []
     unique_word_count = len(unique_words)
@@ -91,7 +94,7 @@ def message_counter(index, message, prior_probability_arr, likelihood_dict):
             probability /= likelihood_dict[index]['denominator count']
 
     if probability == 0:
-        return .000000000000000001
+        return sys.float_info.min
     return probability
 
 
@@ -184,5 +187,5 @@ def plot_data(test_file_name, train_file_name):
         plt.plot(x_values[i], y_values[i], message_points[i])
     plt.show()
 
-print(test_probability('test.csv','train.csv'))
-plot_data('test.csv','train.csv')
+print(test_probability('data/test.csv','data/train.csv'))
+#plot_data('test.csv','train.csv')
