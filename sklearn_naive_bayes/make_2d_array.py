@@ -62,7 +62,8 @@ def make_2d_arrays(index_dict, all_messages, func):
                 else:
                     lst = func(word)
                 for value in lst:
-                    curr_appender[index_dict[value]] = 1
+                    if value in index_dict:
+                        curr_appender[index_dict[value]] = 1
             message_array.append(curr_appender)
         all_message_array.append(message_array)
 
@@ -81,14 +82,14 @@ def make_index_dict(unique_words, func):
     index = 0
     for word in unique_words:
         if func is None:
-            if word not in index_dict: # This check should not be necessary, but just to be safe
-                index_dict[word] = index
-                index += 1
+            lst = [word]
         else:
-            for value in func(word):
-                if value not in index_dict:
-                    index_dict[value] = index
-                    index += 1
+            lst = func(word)
+        
+        for value in lst:
+            if value not in index_dict:
+                index_dict[value] = index
+                index += 1
     
     return index_dict
 
@@ -131,9 +132,11 @@ def make_messages(csv_files):
     return unique_words, all_messages, all_categories
 
 
-def driver(csv_files, func):
+def driver(csv_files, func, filter_func):
     """
     Driver for make_2d_array.py
     """
     unique_words, messages, categories = make_messages(csv_files)
+    if filter_func is not None:
+        unique_words = filter_func(unique_words)
     return make_message_arrays(unique_words, messages, func), categories
