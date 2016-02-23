@@ -1,3 +1,9 @@
+"""
+functions.py
+
+Holds functions for word processing
+"""
+
 from nltk.corpus import wordnet as wn
 
 def get_synonym_sets(word):
