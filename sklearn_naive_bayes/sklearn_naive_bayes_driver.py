@@ -5,10 +5,10 @@ Driver file for the sklearn naive bayes implimentation.  Takes user input of tra
 along with the desired function to make predictions
 """
 
-usage = """
+usage =
+"""
 python3 sklearn_naive_bayes_driver.py <test_data> <train_data> <function>
 """
-
 
 from sklearn.naive_bayes import MultinomialNB
 

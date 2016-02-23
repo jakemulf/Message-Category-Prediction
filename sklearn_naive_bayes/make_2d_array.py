@@ -1,5 +1,4 @@
 from nltk.corpus import stopwords
-from nltk.corpus import wordnet as wn
 import csv, string
 
 IGNORE_WORDS = stopwords.words('english')
