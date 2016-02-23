@@ -57,12 +57,13 @@ def make_2d_arrays(index_dict, all_messages, func):
         message_array = []
         for message in messages:
             curr_appender = [0]*len(index_dict)
-            if func is None:
-                lst = message
-            else:
-                lst = func(message)
-            for value in lst:
-                curr_appender[index_dict[value]] = 1
+            for word in message:
+                if func is None:
+                    lst = [word]
+                else:
+                    lst = func(word)
+                for value in lst:
+                    curr_appender[index_dict[value]] = 1
             message_array.append(curr_appender)
         all_message_array.append(message_array)
 
