@@ -131,9 +131,9 @@ def make_messages(csv_files):
     return unique_words, all_messages, all_categories
 
 
-def driver(csv_files):
+def driver(csv_files, func):
     """
     Driver for make_2d_array.py
     """
     unique_words, messages, categories = make_messages(csv_files)
-    return make_message_arrays(unique_words, messages, None), categories
+    return make_message_arrays(unique_words, messages, func), categories
