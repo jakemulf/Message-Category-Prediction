@@ -1,3 +1,32 @@
+"""
+sklearn_naive_bayes_driver.py
+
+Driver file for the sklearn naive bayes implimentation.  Takes user input of training data and testing data
+along with the desired function to make predictions
+"""
+
+usage = """
+python3 sklearn_naive_bayes_driver.py <test_data> <train_data> <function>
+"""
+
+
+from sklearn.naive_bayes import MultinomialNB
+
+import make_2d_array, functions
+
+
+FUNCTIONS = {
+    'None': None,
+    'get_synonym_sets': functions.get_synonym_sets
+}
+
+
+def get_function(func):
+    if func in FUNCTIONS:
+        return FUNCTIONS[func]
+    return None
+
+
 def compare_data(d1, d2):
     """
     Compares the 2 data arrays for accuracy
@@ -10,18 +39,30 @@ def compare_data(d1, d2):
 
     return correct/total
 
-from sklearn.naive_bayes import MultinomialNB
-gnb = MultinomialNB()
-import make_2d_array
-data = make_2d_array.driver(['data/test.csv', 'data/train.csv'])
 
-#data[0][0]: test data message information
-#data[0][1]: train data message information
-#data[1][0]: test data category information
-#data[1][1]: train data category information
+def main(test, train, func):
+    func = get_function(func)
+    data = make_2d_array.driver([test,train], func)
+    gnb = MultinomialNB()
+    prediction = gnb.fit(data[0][1], data[1][1]).predict(data[0][0])
 
-prediction = gnb.fit(data[0][1], data[1][1]).predict(data[0][0])
+    #prediction: test data category prediction
 
-#prediction: test data category prediction
+    print(compare_data(prediction,data[1][0]))
+    #data[0][0]: test data message information
+    #data[0][1]: train data message information
+    #data[1][0]: test data category information
+    #data[1][1]: train data category information
 
-print(compare_data(prediction,data[1][0]))
+
+if __name__ == '__main__':
+    import sys
+    try:
+        test = sys.argv[1]
+        train = sys.argv[2]
+        func = sys.argv[3]
+    except:
+        print("usage: " + usage)
+        sys.exit(-1)
+    
+    main(test, train, func)
