@@ -3,6 +3,3 @@
 
 #pycache files
 *.pyc
-
-#data files
-*.csv
