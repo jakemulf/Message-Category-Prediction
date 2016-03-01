@@ -62,8 +62,11 @@ def make_2d_arrays(index_dict, all_messages, func):
                 else:
                     lst = func(word)
                 for value in lst:
-                    if value in index_dict:
+                    try:
                         curr_appender[index_dict[value]] = 1
+                    except KeyError:
+                        print("Error: A value was processed that was not in the original dictionary")
+                        exit(-1)
             message_array.append(curr_appender)
         all_message_array.append(message_array)
 
@@ -138,5 +141,5 @@ def driver(csv_files, func, filter_func):
     """
     unique_words, messages, categories = make_messages(csv_files)
     if filter_func is not None:
-        unique_words = filter_func(unique_words)
+        unique_words, messages = filter_func(unique_words, messages)
     return make_message_arrays(unique_words, messages, func), categories
