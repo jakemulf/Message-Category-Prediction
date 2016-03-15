@@ -82,7 +82,7 @@ def replace_words(words):
         else:
             add_word = True
             for new_word in new_words:
-                if check_similarity(new_word, word): #TODO
+                if check_similarity(new_word, word):
                     add_word = False 
                     similar_word = new_word
                     break

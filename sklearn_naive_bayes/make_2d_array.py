@@ -1,6 +1,7 @@
 from nltk.corpus import stopwords
 import csv, string
 
+
 IGNORE_WORDS = stopwords.words('english')
 
 ALL_CATEGORIES = [
@@ -61,15 +62,16 @@ def make_2d_arrays(index_dict, all_messages, func):
                     lst = [word]
                 else:
                     lst = func(word)
+                
                 for value in lst:
-                    try:
+                    if value is not None and value in index_dict:
                         curr_appender[index_dict[value]] = 1
-                    except KeyError:
-                        print("Error: A value was processed that was not in the original dictionary")
-                        exit(-1)
+
             message_array.append(curr_appender)
         all_message_array.append(message_array)
 
+    print('Number of messages: ' + str(len(all_message_array[0])))
+    print('Number of key factors per message: ' + str(len(all_message_array[0][0])))
     return all_message_array
 
 
@@ -90,7 +92,7 @@ def make_index_dict(unique_words, func):
             lst = func(word)
         
         for value in lst:
-            if value not in index_dict:
+            if value is not None and value not in index_dict:
                 index_dict[value] = index
                 index += 1
     

@@ -16,7 +16,7 @@ import make_2d_array, functions, filter_functions
 
 FUNCTIONS = {
     'None': None,
-    'get_synonym_sets': functions.get_synonym_sets
+    'get_synonym_sets': functions.get_synonym_sets,
 }
 
 FILTER_FUNCTIONS = {
