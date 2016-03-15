@@ -80,8 +80,6 @@ def make_2d_arrays(index_dict, all_messages, func):
             message_array.append(curr_appender)
         all_message_array.append(message_array)
 
-    print('Number of messages: ' + str(len(all_message_array[0])))
-    print('Number of key factors per message: ' + str(len(all_message_array[0][0])))
     return all_message_array
 
 
@@ -115,10 +113,12 @@ def make_message_arrays(unique_words, all_messages, func, post_filter_func):
     arrays = make_2d_arrays(index_dict, all_messages, func)
     
     if post_filter_func is not None:
-        return post_filter_func(arrays)
-    else:
-        return arrays
+        arrays = post_filter_func(arrays)
+    
+    print('Number of messages: ' + str(len(arrays[0])))
+    print('Number of key factors per message: ' + str(len(arrays[0][0])))
 
+    return arrays
 
 def make_messages(csv_files):
     """

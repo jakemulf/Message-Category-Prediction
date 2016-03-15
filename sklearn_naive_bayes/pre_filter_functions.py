@@ -1,7 +1,8 @@
 """
-filter_functions.py
+pre_filter_functions.py
 
-Holds functions for filtering words
+Holds functions that take the unique words and all the messages and modifies
+them accordingly
 """
 import random
 from nltk.corpus import wordnet as wn

@@ -26,6 +26,7 @@ PRE_FILTER_FUNCTIONS = {
 
 POST_FILTER_FUNCTIONS = {
     'None': None,
+    'filter_by_features': post_filter_functions.filter_by_features,
 }
 
 
