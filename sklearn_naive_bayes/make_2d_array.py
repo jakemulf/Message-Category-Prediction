@@ -1,6 +1,7 @@
 from nltk.corpus import stopwords
 import csv, string
 
+
 IGNORE_WORDS = stopwords.words('english')
 
 ALL_CATEGORIES = [
@@ -43,6 +44,18 @@ def remove_punctuation_and_lowercase(strn):
     return [word for word in word_list if word != '' and word not in IGNORE_WORDS]
 
 
+def get_list(word, func):
+    """
+    Gets the desired list from the given parameters
+    """
+    if func is None:
+        lst = [word]
+    else:
+        lst = func(word)
+    
+    return lst
+
+
 def make_2d_arrays(index_dict, all_messages, func):
     """
     Takes an index dictionary and all the messages and create 2d arrays of 0s and 1s
@@ -56,16 +69,19 @@ def make_2d_arrays(index_dict, all_messages, func):
         message_array = []
         for message in messages:
             curr_appender = [0]*len(index_dict)
+            
             for word in message:
-                if func is None:
-                    lst = [word]
-                else:
-                    lst = func(word)
+                lst = get_list(word, func)
+                
                 for value in lst:
-                    curr_appender[index_dict[value]] = 1
+                    if value is not None and value in index_dict:
+                        curr_appender[index_dict[value]] = 1
+
             message_array.append(curr_appender)
         all_message_array.append(message_array)
 
+    print('Number of messages: ' + str(len(all_message_array[0])))
+    print('Number of key factors per message: ' + str(len(all_message_array[0][0])))
     return all_message_array
 
 
@@ -80,26 +96,28 @@ def make_index_dict(unique_words, func):
     index_dict = {}
     index = 0
     for word in unique_words:
-        if func is None:
-            if word not in index_dict: # This check should not be necessary, but just to be safe
-                index_dict[word] = index
+        lst = get_list(word, func)
+
+        for value in lst:
+            if value is not None and value not in index_dict:
+                index_dict[value] = index
                 index += 1
-        else:
-            for value in func(word):
-                if value not in index_dict:
-                    index_dict[value] = index
-                    index += 1
     
     return index_dict
 
 
-def make_message_arrays(unique_words, all_messages, func):
+def make_message_arrays(unique_words, all_messages, func, post_filter_func):
     """
     Creates the list of 2d arrays based on the given words, messages, and
     desired function
     """
     index_dict = make_index_dict(unique_words, func)
-    return make_2d_arrays(index_dict, all_messages, func)
+    arrays = make_2d_arrays(index_dict, all_messages, func)
+    
+    if post_filter_func is not None:
+        return post_filter_func(arrays)
+    else:
+        return arrays
 
 
 def make_messages(csv_files):
@@ -131,9 +149,12 @@ def make_messages(csv_files):
     return unique_words, all_messages, all_categories
 
 
-def driver(csv_files, func):
+def driver(csv_files, func, pre_filter_func, post_filter_func):
     """
     Driver for make_2d_array.py
     """
     unique_words, messages, categories = make_messages(csv_files)
-    return make_message_arrays(unique_words, messages, func), categories
+    if pre_filter_func is not None:
+        unique_words, messages = pre_filter_func(unique_words, messages)
+    
+    return make_message_arrays(unique_words, messages, func, post_filter_func), categories
