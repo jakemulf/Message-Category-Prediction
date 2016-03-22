@@ -112,11 +112,6 @@ def make_message_arrays(unique_words, all_messages, func, post_filter_func):
     index_dict = make_index_dict(unique_words, func)
     arrays = make_2d_arrays(index_dict, all_messages, func)
     
-    if post_filter_func is not None:
-        arrays = post_filter_func(arrays)
-    
-    print('Number of messages: ' + str(len(arrays[0])))
-    print('Number of key factors per message: ' + str(len(arrays[0][0])))
 
     return arrays
 
@@ -157,4 +152,11 @@ def driver(csv_files, func, pre_filter_func, post_filter_func):
     if pre_filter_func is not None:
         unique_words, messages = pre_filter_func(unique_words, messages)
     
-    return make_message_arrays(unique_words, messages, func, post_filter_func), categories
+    arrays = make_message_arrays(unique_words, messages, func, post_filter_func)
+    if post_filter_func is not None:
+        arrays = post_filter_func(arrays, categories)
+
+    print('Number of messages: ' + str(len(arrays[0])))
+    print('Number of key factors per message: ' + str(len(arrays[0][0])))
+
+    return arrays, categories
