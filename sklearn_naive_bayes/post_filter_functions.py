@@ -91,8 +91,7 @@ def remove_columns(completed_array, ignore_columns):
                 if count < len(ignore_columns) and ignore_columns[count] != i:
                     appender.append(row[i])
                 else:
-                    count += 1
-        
+                    count += 1 
             new_array.append(appender)
         new_completed_array.append(new_array)
 
