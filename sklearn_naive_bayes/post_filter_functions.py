@@ -54,6 +54,7 @@ def filter_by_features(completed_array, input_categories, threshold):
         if threshold_not_met == len(count.keys()):
             ignore_columns.append(i)
 
+
     print("items removed: " + str(len(ignore_columns)))
     for arr in completed_array:
         for row in arr:
@@ -63,5 +64,3 @@ def filter_by_features(completed_array, input_categories, threshold):
                 count += 1
 
     return completed_array
-
-
