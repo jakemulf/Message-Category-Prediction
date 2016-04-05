@@ -40,7 +40,7 @@ def make_ignore_columns(counts, threshold, message_length):
     return ignore_columns
 
 
-def make_count(completed_array, input_categories):
+def make_counts(completed_array, input_categories):
     """
     Makes the count dict. Also returns the length of the messages
     """
@@ -88,10 +88,11 @@ def remove_columns(completed_array, ignore_columns):
             count = 0
             appender = []
             for i in range(len(row)):
-                if count < len(ignore_columns) and ignore_columns[count] != i:
-                    appender.append(row[i])
-                else:
+                if count < len(ignore_columns) and ignore_columns[count] == i:
                     count += 1 
+                else:
+                    appender.append(row[i])
+
             new_array.append(appender)
         new_completed_array.append(new_array)
 
@@ -103,7 +104,7 @@ def filter_by_features(completed_array, input_categories, threshold):
     Takes the completed array and removes all the columns that have a variation less
     than the given threshold
     """
-    (counts, message_length) = make_count(completed_array, input_categories)
+    (counts, message_length) = make_counts(completed_array, input_categories)
     ignore_columns = make_ignore_columns(counts, threshold, message_length)
     new_array = remove_columns(completed_array, ignore_columns)
     

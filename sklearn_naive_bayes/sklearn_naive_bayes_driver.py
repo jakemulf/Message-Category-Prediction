@@ -49,23 +49,27 @@ def compare_data(d1, d2):
     return correct/total
 
 
-def main(test, train, func, pre_filter_func, post_filter_func, threshold):
-    func = get_func(func, FUNCTIONS)
-    pre_filter_func = get_func(pre_filter_func, PRE_FILTER_FUNCTIONS)
-    post_filter_func = get_func(post_filter_func, POST_FILTER_FUNCTIONS)
-    data = make_2d_array.driver([test,train], func, pre_filter_func, post_filter_func, threshold)
+def make_prediction(data):
     gnb = MultinomialNB()
     prediction = gnb.fit(data[0][1], data[1][1]).predict(data[0][0])
 
     #prediction: test data category prediction
 
-    print(compare_data(prediction,data[1][0]))
+    return compare_data(prediction,data[1][0])
     #data[0][0]: test data message information
     #data[0][1]: train data message information
     #data[1][0]: test data category information
     #data[1][1]: train data category information
+    
 
 
+def main(test, train, func, pre_filter_func, post_filter_func, threshold):
+    func = get_func(func, FUNCTIONS)
+    pre_filter_func = get_func(pre_filter_func, PRE_FILTER_FUNCTIONS)
+    post_filter_func = get_func(post_filter_func, POST_FILTER_FUNCTIONS)
+    data = make_2d_array.driver([test,train], func, pre_filter_func, post_filter_func, threshold)
+
+    print(make_prediction(data))
 if __name__ == '__main__':
     import sys
     try:
