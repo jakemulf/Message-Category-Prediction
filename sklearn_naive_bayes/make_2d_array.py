@@ -144,7 +144,7 @@ def make_messages(csv_files):
     return unique_words, all_messages, all_categories
 
 
-def driver(csv_files, func, pre_filter_func, post_filter_func):
+def driver(csv_files, func, pre_filter_func, post_filter_func, threshold):
     """
     Driver for make_2d_array.py
     """
@@ -154,7 +154,7 @@ def driver(csv_files, func, pre_filter_func, post_filter_func):
     
     arrays = make_message_arrays(unique_words, messages, func, post_filter_func)
     if post_filter_func is not None:
-        arrays = post_filter_func(arrays, categories)
+        arrays = post_filter_func(arrays, categories, threshold)
 
     print('Number of messages: ' + str(len(arrays[0])))
     print('Number of key factors per message: ' + str(len(arrays[0][0])))

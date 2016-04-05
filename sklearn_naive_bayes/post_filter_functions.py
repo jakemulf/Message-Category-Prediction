@@ -7,7 +7,7 @@ from math import log
 import numpy
 
 
-def feature_threshold(completed_array, input_categories, threshold):
+def filter_by_features(completed_array, input_categories, threshold):
     """
     Takes the completed array and removes all the columns that have a variation less
     than the given threshold
@@ -65,9 +65,3 @@ def feature_threshold(completed_array, input_categories, threshold):
     return completed_array
 
 
-def filter_by_features(completed_array, input_categories):
-    """
-    Takes the completed 2d array and filters out the values
-    that are poor indicators of prediction
-    """
-    return feature_threshold(completed_array, input_categories, .98)
