@@ -7,32 +7,14 @@ from math import log
 import numpy
 
 
-def filter_by_features(completed_array, input_categories, threshold):
+def make_ignore_columns(counts, threshold, message_length):
     """
-    Takes the completed array and removes all the columns that have a variation less
-    than the given threshold
+    Determines which columns to ignore
     """
-    test_message = completed_array[0]
-    train_message = completed_array[1]
-    test_category = input_categories[0]
-    train_category = input_categories[1]
-
-    #Transpose messages to make column traversal more efficient
-    messages = numpy.array(test_message + train_message).transpose()
-    categories = test_category + train_category
     ignore_columns = []
 
-    for i in range(len(messages)):
-        count = {}
-
-        #Generate the 0/1 counts for the current word for each category
-        for j in range(len(categories)):
-            curr_category = categories[j]
-            if curr_category not in count.keys():
-                count[curr_category] = [0,0]
-
-            count[curr_category][messages[i][j]] += 1
-
+    for i in range(message_length):
+        count = counts[i]
         #Sum up the counts of all categories for easier processing later
         all_messages = [0,0]
         for key in count.keys():
@@ -55,12 +37,75 @@ def filter_by_features(completed_array, input_categories, threshold):
             ignore_columns.append(i)
 
 
+    return ignore_columns
+
+
+def make_count(completed_array, input_categories):
+    """
+    Makes the count dict. Also returns the length of the messages
+    """
+    test_message = completed_array[0]
+    train_message = completed_array[1]
+    test_category = input_categories[0]
+    train_category = input_categories[1]
+
+    #Transpose messages to make column traversal more efficient
+    messages = numpy.array(test_message + train_message).transpose()
+    categories = test_category + train_category
+
+    counts = []
+
+    for i in range(len(messages)):
+        count = {}
+
+        #Generate the 0/1 counts for the current word for each category
+        for j in range(len(categories)):
+            curr_category = categories[j]
+            if curr_category not in count.keys():
+                count[curr_category] = [0,0]
+
+            count[curr_category][messages[i][j]] += 1
+
+        counts.append(count)
+
+    return (counts, len(messages))
+
+
+def remove_columns(completed_array, ignore_columns):
+    """
+    Removes the columns from the array
+    """
     print("items removed: " + str(len(ignore_columns)))
+    
+    if len(ignore_columns) == 0:
+        return completed_array
+
+    ignore_columns.sort()
+    new_completed_array = []
     for arr in completed_array:
+        new_array = []
         for row in arr:
             count = 0
-            for col in ignore_columns:
-                row.pop(col-count) #remove element at index
-                count += 1
+            appender = []
+            for i in range(len(row)):
+                if count < len(ignore_columns) and ignore_columns[count] != i:
+                    appender.append(row[i])
+                else:
+                    count += 1
+        
+            new_array.append(appender)
+        new_completed_array.append(new_array)
 
-    return completed_array
+    return new_completed_array
+
+
+def filter_by_features(completed_array, input_categories, threshold):
+    """
+    Takes the completed array and removes all the columns that have a variation less
+    than the given threshold
+    """
+    (counts, message_length) = make_count(completed_array, input_categories)
+    ignore_columns = make_ignore_columns(counts, threshold, message_length)
+    new_array = remove_columns(completed_array, ignore_columns)
+    
+    return new_array

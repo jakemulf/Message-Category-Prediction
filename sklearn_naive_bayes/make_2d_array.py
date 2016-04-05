@@ -4,6 +4,7 @@ import csv, string
 
 IGNORE_WORDS = stopwords.words('english')
 
+
 ALL_CATEGORIES = [
     'Action',
     'Community',
