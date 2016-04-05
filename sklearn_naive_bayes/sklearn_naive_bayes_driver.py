@@ -6,7 +6,7 @@ along with the desired function to make predictions
 """
 
 usage = """
-python3 sklearn_naive_bayes_driver.py <test_data> <train_data> <function> <pre_filter_function> <post_filter_function>
+python3 sklearn_naive_bayes_driver.py <test_data> <train_data> <function> <pre_filter_function> <post_filter_function> <threshold>
 """
 
 from sklearn.naive_bayes import MultinomialNB
@@ -26,6 +26,7 @@ PRE_FILTER_FUNCTIONS = {
 
 POST_FILTER_FUNCTIONS = {
     'None': None,
+    'filter_by_features': post_filter_functions.filter_by_features,
 }
 
 
@@ -48,11 +49,26 @@ def compare_data(d1, d2):
     return correct/total
 
 
-def main(test, train, func, pre_filter_func, post_filter_func):
+def return_main(test, train, func, pre_filter_func, post_filter_func, threshold):
+    """
+    Same as main, except returns the prediction value instead of printing it
+    """
     func = get_func(func, FUNCTIONS)
     pre_filter_func = get_func(pre_filter_func, PRE_FILTER_FUNCTIONS)
     post_filter_func = get_func(post_filter_func, POST_FILTER_FUNCTIONS)
-    data = make_2d_array.driver([test,train], func, pre_filter_func, post_filter_func)
+    data = make_2d_array.driver([test,train], func, pre_filter_func, post_filter_func, threshold)
+    gnb = MultinomialNB()
+    prediction = gnb.fit(data[0][1], data[1][1]).predict(data[0][0])
+
+
+    return compare_data(prediction, data[1][0])
+
+
+def main(test, train, func, pre_filter_func, post_filter_func, threshold):
+    func = get_func(func, FUNCTIONS)
+    pre_filter_func = get_func(pre_filter_func, PRE_FILTER_FUNCTIONS)
+    post_filter_func = get_func(post_filter_func, POST_FILTER_FUNCTIONS)
+    data = make_2d_array.driver([test,train], func, pre_filter_func, post_filter_func, threshold)
     gnb = MultinomialNB()
     prediction = gnb.fit(data[0][1], data[1][1]).predict(data[0][0])
 
@@ -73,8 +89,9 @@ if __name__ == '__main__':
         func = sys.argv[3]
         pre_filter_func = sys.argv[4]
         post_filter_func = sys.argv[5]
+        threshold = float(sys.argv[6])
     except:
         print("usage: " + usage)
         sys.exit(-1)
     
-    main(test, train, func, pre_filter_func, post_filter_func)
+    main(test, train, func, pre_filter_func, post_filter_func, threshold)

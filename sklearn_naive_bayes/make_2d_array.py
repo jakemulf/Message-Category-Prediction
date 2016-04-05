@@ -80,8 +80,6 @@ def make_2d_arrays(index_dict, all_messages, func):
             message_array.append(curr_appender)
         all_message_array.append(message_array)
 
-    print('Number of messages: ' + str(len(all_message_array[0])))
-    print('Number of key factors per message: ' + str(len(all_message_array[0][0])))
     return all_message_array
 
 
@@ -114,11 +112,8 @@ def make_message_arrays(unique_words, all_messages, func, post_filter_func):
     index_dict = make_index_dict(unique_words, func)
     arrays = make_2d_arrays(index_dict, all_messages, func)
     
-    if post_filter_func is not None:
-        return post_filter_func(arrays)
-    else:
-        return arrays
 
+    return arrays
 
 def make_messages(csv_files):
     """
@@ -149,7 +144,7 @@ def make_messages(csv_files):
     return unique_words, all_messages, all_categories
 
 
-def driver(csv_files, func, pre_filter_func, post_filter_func):
+def driver(csv_files, func, pre_filter_func, post_filter_func, threshold):
     """
     Driver for make_2d_array.py
     """
@@ -157,4 +152,11 @@ def driver(csv_files, func, pre_filter_func, post_filter_func):
     if pre_filter_func is not None:
         unique_words, messages = pre_filter_func(unique_words, messages)
     
-    return make_message_arrays(unique_words, messages, func, post_filter_func), categories
+    arrays = make_message_arrays(unique_words, messages, func, post_filter_func)
+    if post_filter_func is not None:
+        arrays = post_filter_func(arrays, categories, threshold)
+
+    print('Number of messages: ' + str(len(arrays[0])))
+    print('Number of key factors per message: ' + str(len(arrays[0][0])))
+
+    return arrays, categories

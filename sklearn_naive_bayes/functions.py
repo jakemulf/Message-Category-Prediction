@@ -1,11 +1,11 @@
 """
 functions.py
 
-Holds functions for word processing
+Holds functions that take a single word and generates a list of
+important factors
 """
 from nltk.corpus import wordnet as wn
 
-#List generating functions
 def get_synonym_sets(word):
     synonym_set = []
     synonyms = wn.synsets(word)
@@ -14,9 +14,3 @@ def get_synonym_sets(word):
                 synonym_set.append(lemma.name())
     return synonym_set
 
-#Yes/No word filtering functions with a filter parameter
-def get_important_words(word, important_words):
-    if word in important_words:
-        return word
-    else:
-        return None
