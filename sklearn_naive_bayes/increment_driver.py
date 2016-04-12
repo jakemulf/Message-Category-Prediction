@@ -2,17 +2,23 @@
 increment_driver.py
 
 Takes a range of thresholds and an increment value and runs
-sklearn_naive_bayes_driver.return_main for each threshold
+the prediction model for each threshold
 """
 usage = """
-python3 sklearn_naive_bayes/increment_driver.py <test_data> <train_data> <function> <pre_filter_function> <post_filter_function> <threshold_start> <threshold_end> <threshold_increment>
+python3 sklearn_naive_bayes/increment_driver.py <test_data> <train_data> <threshold_start> <threshold_end> <threshold_increment>
 """
-import sklearn_naive_bayes_driver
+import post_filter_functions, make_2d_array, sklearn_naive_bayes_driver
 
-def main(test, train, func, pre_filter_func, post_filter_func, threshold_start, threshold_end, threshold_increment):
+
+def main(test, train, threshold_start, threshold_end, threshold_increment):
     values = []
+    (completed_array, input_categories) = make_2d_array.driver([test, train], None, None, None, None)
+    (counts, message_length) = post_filter_functions.make_counts(completed_array, input_categories)
     while threshold_start <= threshold_end:
-        values.append(sklearn_naive_bayes_driver.return_main(test, train, func, pre_filter_func, post_filter_func, threshold_start))
+        ignore_columns = post_filter_functions.make_ignore_columns(counts, threshold_start, message_length)
+        new_array = post_filter_functions.remove_columns(completed_array, ignore_columns)
+        curr_prediction = sklearn_naive_bayes_driver.make_prediction([new_array, input_categories])
+        values.append(curr_prediction)
         threshold_start += threshold_increment
 
     print(values)
@@ -23,16 +29,13 @@ if __name__ == '__main__':
     try:
         test = sys.argv[1]
         train = sys.argv[2]
-        func = sys.argv[3]
-        pre_filter_func = sys.argv[4]
-        post_filter_func = sys.argv[5]
-        threshold_start = float(sys.argv[6])
-        threshold_end = float(sys.argv[7])
-        threshold_increment = float(sys.argv[8])
+        threshold_start = float(sys.argv[3])
+        threshold_end = float(sys.argv[4])
+        threshold_increment = float(sys.argv[5])
 
     except:
         print("usage: " + usage)
         sys.exit(-1)
 
-    main(test, train, func, pre_filter_func, post_filter_func, threshold_start, threshold_end, threshold_increment)
+    main(test, train, threshold_start, threshold_end, threshold_increment)
 
