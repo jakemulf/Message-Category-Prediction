@@ -157,7 +157,7 @@ def driver(csv_files, func, pre_filter_func, post_filter_func, threshold):
     if post_filter_func is not None:
         arrays = post_filter_func(arrays, categories, threshold)
 
-    print('Number of messages: ' + str(len(arrays[0])))
+    print('Number of messages in testing: ' + str(len(arrays[0])))
     print('Number of key factors per message: ' + str(len(arrays[0][0])))
 
     return arrays, categories
