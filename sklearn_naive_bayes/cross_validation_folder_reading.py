@@ -62,7 +62,11 @@ def graph_data(data, threshold_start, threshold_increment):
 
     plt.show()
 
-def main(folder, threshold_start, threshold_end, threshold_increment):
+
+def get_data(folder, threshold_start, threshold_end, threshold_increment):
+    """
+    Creates the cross validation data
+    """
     files = os.listdir(folder)
     train_file_name = 'train.csv'
     if folder[-1] != '/':
@@ -84,6 +88,11 @@ def main(folder, threshold_start, threshold_end, threshold_increment):
         data.append(curr_data)
         subprocess.call(['rm', folder + train_file_name])
 
+    return data
+
+
+def main(folder, threshold_start, threshold_end, threshold_increment):
+    data = get_data(folder, threshold_start, threshold_end, threshold_increment)
     graph_data(data, threshold_start, threshold_increment)
 
 if __name__ == '__main__':
