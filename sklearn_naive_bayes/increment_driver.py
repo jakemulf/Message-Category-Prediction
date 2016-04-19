@@ -46,9 +46,8 @@ def increment_threshold(test, train, threshold_start, threshold_end, threshold_i
     return (values, old_start, threshold_increment)
 
 
-def main(test, train, treshold_start, threshold_end, threshold_increment):
-    (values, old_start, threshold_icnrement) = increment_threshold(
-        test, train, threshold_start, threshold_end, threshold_increment)
+def main(test, train, threshold_start, threshold_end, threshold_increment):
+    (values, old_start, threshold_increment) = increment_threshold(test, train, threshold_start, threshold_end, threshold_increment)
     graph_values(values, old_start, threshold_increment)
 
 
