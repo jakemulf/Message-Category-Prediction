@@ -30,7 +30,7 @@ def graph_values(values, threshold_start, threshold_increment):
     plt.show()
 
 
-def main(test, train, threshold_start, threshold_end, threshold_increment):
+def increment_threshold(test, train, threshold_start, threshold_end, threshold_increment):
     values = []
     (completed_array, input_categories) = make_2d_array.driver([test, train], None, None, None, None)
     (counts, message_length) = post_filter_functions.make_counts(completed_array, input_categories)
@@ -43,6 +43,12 @@ def main(test, train, threshold_start, threshold_end, threshold_increment):
         values.append(curr_prediction)
         threshold_start += threshold_increment
 
+    return (values, old_start, threshold_increment)
+
+
+def main(test, train, treshold_start, threshold_end, threshold_increment):
+    (values, old_start, threshold_icnrement) = increment_threshold(
+        test, train, threshold_start, threshold_end, threshold_increment)
     graph_values(values, old_start, threshold_increment)
 
 
@@ -60,4 +66,3 @@ if __name__ == '__main__':
         sys.exit(-1)
 
     main(test, train, threshold_start, threshold_end, threshold_increment)
-
