@@ -46,6 +46,7 @@ def main(base_file, times_to_run, percent_per_chunk, threshold_start,
     subprocess.call(['mkdir', picture_location])
 
     for i in range(times_to_run):
+        print('on run: ' + str(i))
         # Make chunks
         subprocess.call(['mkdir', chunk_destination])
         file_contents = chunks.get_contents(base_file)

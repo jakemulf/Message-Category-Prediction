@@ -15,27 +15,6 @@ import matplotlib.pyplot as plt
 from .increment_driver import increment_threshold
 
 
-def get_max_or_min(data, func):
-    """
-    Gets the max or min value from the array of arrays
-    """
-    if func == max:
-        find_max = True
-    else:
-        find_max = False
-
-    if len(data) == 0:
-        return None
-
-    best_value = func(data[0])
-    for arr in data:
-        curr_value = func(arr)
-        if (find_max and curr_value > best_value) or (not find_max and curr_value < best_value):
-            best_value = curr_value
-
-    return best_value
-
-
 def make_x_axis(data, threshold_start, threshold_increment):
     """
     Makes the x axis for the data plotting
@@ -49,14 +28,13 @@ def make_x_axis(data, threshold_start, threshold_increment):
         x_axis.append(threshold_start)
         threshold_start += threshold_increment
 
-    return x_axis
+    return x_axis, threshold_increment
 
 
 def graph_data(data, threshold_start, threshold_increment, picture_name):
     plt.clf()
-    x_axis = make_x_axis(data, threshold_start, threshold_increment)
-    max_threshold = get_max_or_min(data, max)
-    min_threshold = get_max_or_min(data, min)
+    plt.ylim(.5, .85)
+    x_axis, threshold_increment = make_x_axis(data, threshold_start, threshold_increment)
 
     for values in data:
         plt.plot(x_axis, values, c=[random.random(), random.random(), random.random()])
@@ -76,6 +54,7 @@ def get_data(folder, threshold_start, threshold_end, threshold_increment):
     data = []
 
     for i in range(len(files)):
+        print('on chunk: ' + str(i))
         test_file = files[i]
         open(folder+train_file_name, 'w')
         for j in range(len(files)):
