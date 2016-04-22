@@ -9,8 +9,8 @@ for cross_validation_folder_reading
 """
 
 usage = """
-usage: python3 automate_cross_validation <base_file> <times_to_run> <chunk_destination> <percent_per_chunk>
-    <threshold_start> <threshold_end> <threshold_increment> <picture_location>
+usage: python3 automate_cross_validation <base_file> <times_to_run> <percent_per_chunk>
+    <threshold_start> <threshold_end> <threshold_increment>
 
 The base file MUST be in the same directory as automate_cross_validation.py
 """
@@ -19,22 +19,31 @@ import subprocess
 import file_creation.chunks as chunks
 import sklearn_naive_bayes.cross_validation_folder_reading as cvfr
 
-def main(base_file, times_to_run, chunk_destination, percent_per_chunk, threshold_start,
-         threshold_end, threshold_increment, picture_location):
-    if chunk_destination[-1] != '/':
-        chunk_destination += '/'
-    if picture_location[-1] != '/':
-        picture_location += '/'
 
+def confirm_input(dest):
+    """
+    Confirms the directory that's about to be deleted
+    """
     while True:
-        curr_input = input("WARNING: {} DIRECTORY IS ABOUT TO BE DELETED. ".format(chunk_destination) +
+        curr_input = input("WARNING: {} DIRECTORY IS ABOUT TO BE DELETED. ".format(dest) +
             "TYPE exit TO EXIT, OR HIT ENTER TO CONTINUE: ")
         if curr_input == 'exit':
             exit(0)
         elif curr_input == '':
             break
 
-    subprocess.call(['rm', '-rf', chunk_destination])
+    subprocess.call(['rm', '-rf', dest])
+
+
+def main(base_file, times_to_run, percent_per_chunk, threshold_start,
+         threshold_end, threshold_increment):
+    chunk_destination = 'chunk_destination/'
+    picture_location = 'cross_validation_pictures/'
+
+    confirm_input(chunk_destination)
+    confirm_input(picture_location)
+
+    subprocess.call(['mkdir', picture_location])
 
     for i in range(times_to_run):
         # Make chunks
@@ -53,15 +62,13 @@ if __name__ == '__main__':
     try:
         base_file = sys.argv[1]
         times_to_run = int(sys.argv[2])
-        chunk_destination = sys.argv[3]
-        percent_per_chunk = float(sys.argv[4])
-        threshold_start = float(sys.argv[5])
-        threshold_end = float(sys.argv[6])
-        threshold_increment = float(sys.argv[7])
-        picture_location = sys.argv[8]
+        percent_per_chunk = float(sys.argv[3])
+        threshold_start = float(sys.argv[4])
+        threshold_end = float(sys.argv[5])
+        threshold_increment = float(sys.argv[6])
     except:
         print(usage)
         sys.exit(-1)
 
-    main(base_file, times_to_run, chunk_destination, percent_per_chunk,
-         threshold_start, threshold_end, threshold_increment, picture_location)
+    main(base_file, times_to_run, percent_per_chunk,
+         threshold_start, threshold_end, threshold_increment)
