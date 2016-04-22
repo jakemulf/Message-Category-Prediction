@@ -59,7 +59,8 @@ def write_files(file_contents, percent_per_chunk, file_name):
     contents = make_contents(file_contents, number_of_files, rows_per_file, overflow_files)
 
     for i in range(len(contents)):
-        with open(file_name[:-4] + '_' + str(i) + '.csv', 'w+') as csv_file:
+        curr_file_name = file_name[:-4] + '_' + str(i) + '.csv'
+        with open(curr_file_name, 'w+') as csv_file:
             csv_writer = csv.writer(csv_file)
             for content in contents[i]:
                 csv_writer.writerow(content)

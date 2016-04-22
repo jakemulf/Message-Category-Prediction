@@ -9,7 +9,7 @@ python3 sklearn_naive_bayes/increment_driver.py <test_data> <train_data> <thresh
 """
 import matplotlib.pyplot as plt
 
-import post_filter_functions, make_2d_array, sklearn_naive_bayes_driver
+from . import post_filter_functions, make_2d_array, sklearn_naive_bayes_driver
 
 
 def graph_values(values, threshold_start, threshold_increment):

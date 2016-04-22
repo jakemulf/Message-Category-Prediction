@@ -12,7 +12,7 @@ usage: python3 cross_validation_folder_reading.py <folder_name> <threshold_start
 import os, subprocess, random
 import matplotlib.pyplot as plt
 
-from increment_driver import increment_threshold
+from .increment_driver import increment_threshold
 
 
 def get_max_or_min(data, func):
