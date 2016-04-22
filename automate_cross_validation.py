@@ -10,7 +10,7 @@ for cross_validation_folder_reading
 
 usage = """
 usage: python3 automate_cross_validation <base_file> <times_to_run> <chunk_destination> <percent_per_chunk>
-    <threshold_start> <threshold_end> <threshold_increment>
+    <threshold_start> <threshold_end> <threshold_increment> <picture_location>
 
 The base file MUST be in the same directory as automate_cross_validation.py
 """
@@ -19,9 +19,12 @@ import subprocess
 import file_creation.chunks as chunks
 import sklearn_naive_bayes.cross_validation_folder_reading as cvfr
 
-def main(base_file, times_to_run, chunk_destination, percent_per_chunk, threshold_start, threshold_end, threshold_increment):
+def main(base_file, times_to_run, chunk_destination, percent_per_chunk, threshold_start,
+         threshold_end, threshold_increment, picture_location):
     if chunk_destination[-1] != '/':
         chunk_destination += '/'
+    if picture_location[-1] != '/':
+        picture_location += '/'
 
     while True:
         curr_input = input("WARNING: {} DIRECTORY IS ABOUT TO BE DELETED. ".format(chunk_destination) +
@@ -40,7 +43,7 @@ def main(base_file, times_to_run, chunk_destination, percent_per_chunk, threshol
         chunks.write_files(file_contents, percent_per_chunk, chunk_destination + base_file)
         # Run cross validation
         data = cvfr.get_data(chunk_destination, threshold_start, threshold_end, threshold_increment)
-        cvfr.graph_data(data, threshold_start, threshold_increment)
+        cvfr.graph_data(data, threshold_start, threshold_increment, picture_location + str(i) + '.png')
         # Delete created files
         subprocess.call(['rm', '-rf', chunk_destination]) 
 
@@ -55,9 +58,10 @@ if __name__ == '__main__':
         threshold_start = float(sys.argv[5])
         threshold_end = float(sys.argv[6])
         threshold_increment = float(sys.argv[7])
+        picture_location = sys.argv[8]
     except:
         print(usage)
         sys.exit(-1)
 
     main(base_file, times_to_run, chunk_destination, percent_per_chunk,
-         threshold_start, threshold_end, threshold_increment)
+         threshold_start, threshold_end, threshold_increment, picture_location)

@@ -7,7 +7,7 @@ for training
 """
 
 usage = """
-usage: python3 cross_validation_folder_reading.py <folder_name> <threshold_start> <threshold_end> <threshold_increment>
+usage: python3 cross_validation_folder_reading.py <folder_name> <threshold_start> <threshold_end> <threshold_increment> <picture_name>
 """
 import os, subprocess, random
 import matplotlib.pyplot as plt
@@ -52,7 +52,8 @@ def make_x_axis(data, threshold_start, threshold_increment):
     return x_axis
 
 
-def graph_data(data, threshold_start, threshold_increment):
+def graph_data(data, threshold_start, threshold_increment, picture_name):
+    plt.clf()
     x_axis = make_x_axis(data, threshold_start, threshold_increment)
     max_threshold = get_max_or_min(data, max)
     min_threshold = get_max_or_min(data, min)
@@ -60,7 +61,7 @@ def graph_data(data, threshold_start, threshold_increment):
     for values in data:
         plt.plot(x_axis, values, c=[random.random(), random.random(), random.random()])
 
-    plt.show()
+    plt.savefig(picture_name)
 
 
 def get_data(folder, threshold_start, threshold_end, threshold_increment):
@@ -91,9 +92,9 @@ def get_data(folder, threshold_start, threshold_end, threshold_increment):
     return data
 
 
-def main(folder, threshold_start, threshold_end, threshold_increment):
+def main(folder, threshold_start, threshold_end, threshold_increment, picture_name):
     data = get_data(folder, threshold_start, threshold_end, threshold_increment)
-    graph_data(data, threshold_start, threshold_increment)
+    graph_data(data, threshold_start, threshold_increment, picture_name)
 
 if __name__ == '__main__':
     import sys
@@ -102,8 +103,9 @@ if __name__ == '__main__':
         threshold_start = float(sys.argv[2])
         threshold_end = float(sys.argv[3])
         threshold_increment = float(sys.argv[4])
+        picture_name = sys.argv[5]
     except:
         print(usage)
         sys.exit(-1)
 
-    main(folder, threshold_start, threshold_end, threshold_increment)
+    main(folder, threshold_start, threshold_end, threshold_increment, picture_name)
