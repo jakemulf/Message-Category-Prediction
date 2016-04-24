@@ -36,7 +36,6 @@ def make_ignore_columns(counts, threshold, message_length):
         if threshold_not_met == len(count.keys()):
             ignore_columns.append(i)
 
-
     return ignore_columns
 
 
@@ -75,7 +74,7 @@ def remove_columns(completed_array, ignore_columns):
     """
     Removes the columns from the array
     """
-    print("items removed: " + str(len(ignore_columns)))
+    print("additional items removed: " + str(len(ignore_columns)))
     
     if len(ignore_columns) == 0:
         return completed_array
@@ -97,6 +96,26 @@ def remove_columns(completed_array, ignore_columns):
         new_completed_array.append(new_array)
 
     return new_completed_array
+
+
+def remove_columns_counts(counts, ignore_columns):
+    """
+    Removes the columns to ignore from the count dict
+    """
+    if len(ignore_columns) == 0:
+        return counts
+
+    ignore_columns.sort()
+    new_counts = []
+    count = 0
+    for i in range(len(counts)):
+        if count < len(ignore_columns) and ignore_columns[count] == i:
+            count += 1
+        else:
+            new_counts.append(counts[i])
+
+    return new_counts
+
 
 
 def filter_by_features(completed_array, input_categories, threshold):

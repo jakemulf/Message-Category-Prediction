@@ -11,7 +11,7 @@ python3 sklearn_naive_bayes_driver.py <test_data> <train_data> <function> <pre_f
 
 from sklearn.naive_bayes import MultinomialNB
 
-import make_2d_array, functions, pre_filter_functions, post_filter_functions
+from . import make_2d_array, functions, pre_filter_functions, post_filter_functions
 
 
 FUNCTIONS = {

@@ -3,3 +3,6 @@
 
 #pycache files
 *.pyc
+
+#generated files
+cross_validation_pictures/*

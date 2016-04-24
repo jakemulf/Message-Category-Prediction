@@ -7,33 +7,12 @@ for training
 """
 
 usage = """
-usage: python3 cross_validation_folder_reading.py <folder_name> <threshold_start> <threshold_end> <threshold_increment>
+usage: python3 cross_validation_folder_reading.py <folder_name> <threshold_start> <threshold_end> <threshold_increment> <picture_name>
 """
 import os, subprocess, random
 import matplotlib.pyplot as plt
 
-from increment_driver import increment_threshold
-
-
-def get_max_or_min(data, func):
-    """
-    Gets the max or min value from the array of arrays
-    """
-    if func == max:
-        find_max = True
-    else:
-        find_max = False
-
-    if len(data) == 0:
-        return None
-
-    best_value = func(data[0])
-    for arr in data:
-        curr_value = func(arr)
-        if (find_max and curr_value > best_value) or (not find_max and curr_value < best_value):
-            best_value = curr_value
-
-    return best_value
+from .increment_driver import increment_threshold
 
 
 def make_x_axis(data, threshold_start, threshold_increment):
@@ -49,18 +28,18 @@ def make_x_axis(data, threshold_start, threshold_increment):
         x_axis.append(threshold_start)
         threshold_start += threshold_increment
 
-    return x_axis
+    return x_axis, threshold_increment
 
 
-def graph_data(data, threshold_start, threshold_increment):
-    x_axis = make_x_axis(data, threshold_start, threshold_increment)
-    max_threshold = get_max_or_min(data, max)
-    min_threshold = get_max_or_min(data, min)
+def graph_data(data, threshold_start, threshold_increment, picture_name):
+    plt.clf()
+    plt.ylim(.5, .85)
+    x_axis, threshold_increment = make_x_axis(data, threshold_start, threshold_increment)
 
     for values in data:
         plt.plot(x_axis, values, c=[random.random(), random.random(), random.random()])
 
-    plt.show()
+    plt.savefig(picture_name)
 
 
 def get_data(folder, threshold_start, threshold_end, threshold_increment):
@@ -75,6 +54,7 @@ def get_data(folder, threshold_start, threshold_end, threshold_increment):
     data = []
 
     for i in range(len(files)):
+        print('on chunk: ' + str(i))
         test_file = files[i]
         open(folder+train_file_name, 'w')
         for j in range(len(files)):
@@ -91,9 +71,9 @@ def get_data(folder, threshold_start, threshold_end, threshold_increment):
     return data
 
 
-def main(folder, threshold_start, threshold_end, threshold_increment):
+def main(folder, threshold_start, threshold_end, threshold_increment, picture_name):
     data = get_data(folder, threshold_start, threshold_end, threshold_increment)
-    graph_data(data, threshold_start, threshold_increment)
+    graph_data(data, threshold_start, threshold_increment, picture_name)
 
 if __name__ == '__main__':
     import sys
@@ -102,8 +82,9 @@ if __name__ == '__main__':
         threshold_start = float(sys.argv[2])
         threshold_end = float(sys.argv[3])
         threshold_increment = float(sys.argv[4])
+        picture_name = sys.argv[5]
     except:
         print(usage)
         sys.exit(-1)
 
-    main(folder, threshold_start, threshold_end, threshold_increment)
+    main(folder, threshold_start, threshold_end, threshold_increment, picture_name)
