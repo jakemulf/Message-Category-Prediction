@@ -5,9 +5,9 @@ Figures out what words are removed at each threshold level
 """
 
 usage = """
-usage: python3 get_words_removed.py <data_file_1> <data_file_2> <threshold_start>
-    <threshold_end> <threshold_increment> <output_file>
+usage: python3 get_words_removed.py <data_file_1> <data_file_2> <output_file>
 """
+import csv
 from math import log
 
 from sklearn_naive_bayes import make_2d_array, post_filter_functions
@@ -72,26 +72,33 @@ def get_counts_and_index_dict(data_files):
     counts, message_length = post_filter_functions.make_counts(arrays, categories)
 
     return counts, index_dict, message_length
-    
+   
+   
+def write_to_file(output_file, word_array):
+    """
+    Writes the output to a csv file
+    """
+    with open(output_file, 'w+') as csv_file:
+        csv_writer = csv.writer(csv_file)
+        for word_threshold in word_array:
+            csv_writer.writerow(word_threshold)
+ 
 
-def main(data_files, threshold_start, threshold_end, threshold_increment, output_file):
+def main(data_files, output_file):
     counts, index_dict, message_length = get_counts_and_index_dict(data_files)
     count_thresholds = make_threshold(counts, message_length)
     word_array = make_word_array(index_dict, count_thresholds)
 
-    print(word_array)
+    write_to_file(output_file, word_array)
 
 
 if __name__ == "__main__":
     import sys
     try:
         data_files = [sys.argv[1], sys.argv[2]]
-        threshold_start = float(sys.argv[3])
-        threshold_end = float(sys.argv[4])
-        threshold_increment = float(sys.argv[5])
-        output_file = sys.argv[6]
+        output_file = sys.argv[3]
     except:
         print(usage)
         sys.exit(-1)
 
-    main(data_files, threshold_start, threshold_end, threshold_increment, output_file)
+    main(data_files, output_file)
