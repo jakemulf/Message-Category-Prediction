@@ -111,8 +111,7 @@ def make_message_arrays(unique_words, all_messages, func, post_filter_func):
     desired function
     """
     index_dict = make_index_dict(unique_words, func)
-    arrays = make_2d_arrays(index_dict, all_messages, func)
-    
+    arrays = make_2d_arrays(index_dict, all_messages, func) 
 
     return arrays
 
