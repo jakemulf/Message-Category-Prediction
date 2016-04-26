@@ -53,7 +53,8 @@ def get_data(folder, threshold_start, threshold_end, threshold_increment):
     if folder[-1] != '/':
         folder += '/'
 
-    data = []
+    all_prediction_data = []
+    all_message_data = []
 
     for i in range(len(files)):
         print('on chunk: ' + str(i))
@@ -65,12 +66,13 @@ def get_data(folder, threshold_start, threshold_end, threshold_increment):
                                                       folder + train_file_name),
                                 shell=True)
 
-        (curr_data, _, _) = increment_threshold(folder + test_file, folder + train_file_name,
+        (prediction_data, message_data, _, _) = increment_threshold(folder + test_file, folder + train_file_name,
                             threshold_start, threshold_end, threshold_increment)
-        data.append(curr_data)
+        all_prediction_data.append(prediction_data)
+        all_message_data.append(message_data)
         subprocess.call(['rm', folder + train_file_name])
 
-    return data
+    return all_prediction_data, all_message_data
 
 
 def main(folder, threshold_start, threshold_end, threshold_increment, picture_name):

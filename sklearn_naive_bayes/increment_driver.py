@@ -31,7 +31,8 @@ def graph_values(values, threshold_start, threshold_increment):
 
 
 def increment_threshold(test, train, threshold_start, threshold_end, threshold_increment):
-    values = []
+    prediction_data = []
+    message_data = []
     (completed_array, input_categories) = make_2d_array.driver([test, train], None, None, None, None)
     (counts, message_length) = post_filter_functions.make_counts(completed_array, input_categories)
     old_start = threshold_start
@@ -43,14 +44,16 @@ def increment_threshold(test, train, threshold_start, threshold_end, threshold_i
         counts = post_filter_functions.remove_columns_counts(counts, ignore_columns)
         message_length -= len(ignore_columns)
         curr_prediction = sklearn_naive_bayes_driver.make_prediction([new_array, input_categories])
-        values.append(curr_prediction)
+        prediction_data.append(curr_prediction)
+        curr_message_data = None #TODO
+        message_data.append(curr_message_data)
         threshold_start += threshold_increment
 
-    return (values, old_start, threshold_increment)
+    return (prediction_data, message_data, old_start, threshold_increment)
 
 
 def main(test, train, threshold_start, threshold_end, threshold_increment):
-    (values, old_start, threshold_increment) = increment_threshold(test, train, threshold_start, threshold_end, threshold_increment)
+    (values, message_data, old_start, threshold_increment) = increment_threshold(test, train, threshold_start, threshold_end, threshold_increment)
     graph_values(values, old_start, threshold_increment)
 
 

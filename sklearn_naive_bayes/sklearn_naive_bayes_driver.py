@@ -60,7 +60,6 @@ def make_prediction(data):
     #data[0][1]: train data message information
     #data[1][0]: test data category information
     #data[1][1]: train data category information
-    
 
 
 def main(test, train, func, pre_filter_func, post_filter_func, threshold):
@@ -70,6 +69,8 @@ def main(test, train, func, pre_filter_func, post_filter_func, threshold):
     data = make_2d_array.driver([test,train], func, pre_filter_func, post_filter_func, threshold)
 
     print(make_prediction(data))
+
+
 if __name__ == '__main__':
     import sys
     try:

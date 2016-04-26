@@ -52,8 +52,9 @@ def main(base_file, times_to_run, percent_per_chunk, threshold_start,
         file_contents = chunks.get_contents(base_file)
         chunks.write_files(file_contents, percent_per_chunk, chunk_destination + base_file)
         # Run cross validation
-        data = cvfr.get_data(chunk_destination, threshold_start, threshold_end, threshold_increment)
-        cvfr.graph_data(data, threshold_start, threshold_increment, picture_location + str(i) + '.png')
+        prediction_data, message_data = cvfr.get_data(chunk_destination, threshold_start, threshold_end, threshold_increment)
+        cvfr.graph_data(prediction_data, threshold_start, threshold_increment, picture_location + str(i) + '.png')
+        #TODO: graph message data
         # Delete created files
         subprocess.call(['rm', '-rf', chunk_destination]) 
 
