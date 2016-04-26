@@ -33,12 +33,14 @@ def make_x_axis(data, threshold_start, threshold_increment):
 
 def graph_data(data, threshold_start, threshold_increment, picture_name):
     plt.clf()
-    plt.ylim(.5, .85)
+    plt.ylim(-.1, 1.1)
     x_axis, threshold_increment = make_x_axis(data, threshold_start, threshold_increment)
 
     for values in data:
         plt.plot(x_axis, values, c=[random.random(), random.random(), random.random()])
 
+    plt.xlabel('Threshold')
+    plt.ylabel('Prediction Rate')
     plt.savefig(picture_name)
 
 
