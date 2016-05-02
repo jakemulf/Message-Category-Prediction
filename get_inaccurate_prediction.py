@@ -30,6 +30,25 @@ def get_not_predicted(data):
     return make_not_predicted(not_predicted, data[1][0])
 
 
+def get_confusion_matrix(actual, predicted):
+    """
+    Creates a dictionary structure x:y -> Z where x is the actual value
+    and y is the predicted value and Z is the sum of that occurrence
+    """
+    confusion_dict = {}
+    for i in range(min(len(predicted),len(actual))):
+        curr_actual = actual[i]
+        curr_predict = predicted[i]
+        curr_key = (curr_actual, curr_predict)
+
+        if curr_key in confusion_dict.keys():
+            confusion_dict[curr_key] += 1
+        else:
+            confusion_dict[curr_key] = 1
+
+    return confusion_dict
+
+
 def average_message_length(messages, indexs, in_indexs):
     lengths = []
 
@@ -51,13 +70,15 @@ def average_message_length(messages, indexs, in_indexs):
 def main(test_data, train_data, threshold):
     unique_words, messages, categories = make_2d_array.make_messages([test_data, train_data])
     arrays = make_2d_array.make_message_arrays(unique_words, messages, None, post_filter_functions.filter_by_features)
-    arrays = post_filter_functions.filter_by_features(arrays, categories, threshold)
+    data = [post_filter_functions.filter_by_features(arrays, categories, threshold), categories]
 
-    not_predicted = get_not_predicted([arrays, categories])
+    gnb = MultinomialNB()
+    predicted = gnb.fit(data[0][1], data[1][1]).predict(data[0][0])
+    actual = data[1][0]
 
-    print(sklearn_naive_bayes_driver.make_prediction([arrays, categories]))
-    print(average_message_length(messages[0], not_predicted, True))
-    print(average_message_length(messages[0], not_predicted, False))
+    print('Actual:Predicted categories')
+    print('Action, Community, Information')
+    print(get_confusion_matrix(actual, predicted))
 
 
 if __name__ == '__main__':
