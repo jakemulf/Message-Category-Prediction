@@ -60,7 +60,7 @@ def get_contents(file_name):
     return categorized_contents
 
 
-def make_contents(categorized_contents, number_of_files, rows_per_file, overflow_files):
+def make_contents(categorized_contents, number_of_files, rows_per_file):
     """
     Breaks up the file contents for file writing
     """
@@ -86,6 +86,18 @@ def make_contents(categorized_contents, number_of_files, rows_per_file, overflow
                 curr_contents.append((cat, message))
 
         contents.append(curr_contents)
+
+    overflow_index = 0
+    for cat in category_index.keys():
+        curr_index = category_index[cat]
+        while curr_index < len(categorized_contents[cat][0]):
+            message = categorized_contents[cat][0][curr_index]
+            contents[overflow_index].append((cat, message))
+
+            overflow_index += 1
+            if overflow_index == number_of_files:
+                overflow_index = 0
+            curr_index += 1
         
     return contents
 
@@ -97,9 +109,8 @@ def write_files(categorized_contents, percent_per_chunk, file_name):
     number_of_files = int(1/percent_per_chunk)
     number_of_rows = sum([len(categorized_contents[x][0]) for x in categorized_contents])
     rows_per_file = number_of_rows//number_of_files # int division
-    overflow_files = number_of_rows%number_of_files
 
-    contents = make_contents(categorized_contents, number_of_files, rows_per_file, overflow_files)
+    contents = make_contents(categorized_contents, number_of_files, rows_per_file)
 
     for i in range(len(contents)):
         curr_file_name = file_name[:-4] + '_' + str(i) + '.csv'
