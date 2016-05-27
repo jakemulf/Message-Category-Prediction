@@ -3,7 +3,8 @@ NaiveBayesSctructure.py
 
 Holds the class that contains the information for the naive bayes classifier
 """
-import csv, string, random
+import csv, string, random, numpy
+from math import log
 from nltk.corpus import stopwords
 
 IGNORE_WORDS = stopwords.words('english')
@@ -18,7 +19,7 @@ def make_file_contents(csv_file):
     index_dict = _get_index_dict(unique_words)
     file_contents = _transform_csv_contents(csv_contents, index_dict, len(unique_words))
 
-    return file_contents
+    return file_contents, unique_words, index_dict
 
 
 def _transform_csv_contents(csv_contents, index_dict, unique_words_count):
@@ -105,6 +106,78 @@ def _read_csv_file(file_name):
     return csv_contents
 
 
+def make_column_thresholds(contents):
+    """
+    Assigns a threshold to each column based on its occurrences in the dataset
+    """
+    counts = _make_counts(contents) 
+    thresholds = _make_thresholds(counts)
+    column_thresholds = [ColumnThreshold(i,thresholds[i]) for i in range(len(thresholds))]
+    return sorted(column_thresholds, key=lambda x: x.threshold)
+
+
+def _make_counts(contents):
+    """
+    Makes the count of each column in each category
+    """
+    _empty_category = lambda x: numpy.array([0]*x)
+    counts = {}
+
+    for row in contents:
+        word_structure = numpy.array(row[0])
+        category = row[1]
+
+        if category not in counts.keys():
+            counts[category] = {}
+            counts[category]['struct'] = _empty_category(len(word_structure))
+            counts[category]['count'] = 0
+
+        counts[category]['struct'] += word_structure
+        counts[category]['count'] += 1
+
+    return counts
+
+
+def _make_thresholds(counts):
+    """
+    Assigns a threshold to each column based on the counts
+    """
+    total_counts = None
+    total_occurrences = [0]*len(counts.keys())
+    for category in counts.keys():
+        if total_counts is None:
+            total_counts = [0]*len(counts[category]['struct'])
+        total_counts += counts[category]['struct']
+        total_occurrences[category] = counts[category]['count']
+
+    thresholds = None
+    for category in counts.keys():
+        if thresholds is None:
+            thresholds = [0]*len(counts[category]['struct'])
+
+        curr_counts = counts[category]['struct']
+        cat_count = total_occurrences[category]
+        out_cat_count = sum(total_occurrences) - cat_count
+        for column in range(len(thresholds)):
+            in_category = curr_counts[column]
+            out_category = total_counts[column]-in_category
+
+            in_category += 1
+            out_category += 1
+            
+            curr_threshold = abs(log( (in_category/cat_count) / (out_category/out_cat_count)))
+            if curr_threshold > thresholds[column]:
+                thresholds[column] = curr_threshold
+
+    return thresholds
+
+
+class ColumnThreshold:
+    def __init__(self, column, threshold):
+        self.column = column
+        self.threshold = threshold
+
+
 class CSVRow:
     def __init__(self, category, words):
         self.category = category
@@ -113,7 +186,12 @@ class CSVRow:
 
 class NaiveBayesStructure:
     def __init__(self, csv_file):
-        self.contents = make_file_contents(csv_file)
+        (contents, unique_words, index_dict) = make_file_contents(csv_file)
+        self.contents = contents
+        self.unique_words = unique_words
+        self.index_dict = index_dict
+
+        self.column_thresholds = make_column_thresholds(contents)
 
     def get_training_testing(self, percent_for_testing):
         """
