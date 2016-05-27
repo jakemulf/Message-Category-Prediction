@@ -6,3 +6,6 @@
 
 #generated files
 cross_validation_pictures/*
+
+#test script
+test.py

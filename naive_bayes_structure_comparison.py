@@ -1,11 +1,12 @@
 """
-naive_bayes_structure_functions.py
+naive_bayes_structure_comparison.py
 
 Holds functions to compare instances of NaiveBayesStructure
 classes and their data structures
 """
 from sklearn.naive_bayes import MultinomialNB
 from numpy import array
+
 
 def compare_class(test, train):
     """
@@ -23,6 +24,7 @@ def compare_structure(test, train):
     np_train = array(train)
 
     return _compare_info(np_test, np_train)
+
 
 def _compare_info(np_test, np_train):
     """
