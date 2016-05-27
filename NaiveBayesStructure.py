@@ -3,7 +3,7 @@ NaiveBayesSctructure.py
 
 Holds the class that contains the information for the naive bayes classifier
 """
-import csv, string
+import csv, string, random
 from nltk.corpus import stopwords
 
 IGNORE_WORDS = stopwords.words('english')
@@ -25,7 +25,7 @@ def _transform_csv_contents(csv_contents, index_dict, unique_words_count):
     """
     Creates the 0/1 array structure of words, and numbers the seen categories
     """
-    file_contents = ([],[])
+    file_contents = []
     seen_categories = [] # Category count should remain small enough for
         # array traversal to make minimal impact in performance
     for content in csv_contents:
@@ -41,8 +41,7 @@ def _transform_csv_contents(csv_contents, index_dict, unique_words_count):
             word_index = index_dict[word]
             word_structure[word_index] = 1
 
-        file_contents[0].append(word_structure)
-        file_contents[1].append(category_index)
+        file_contents.append([word_structure, category_index])
 
     return file_contents
 
@@ -115,3 +114,37 @@ class CSVRow:
 class NaiveBayesStructure:
     def __init__(self, csv_file):
         self.contents = make_file_contents(csv_file)
+
+    def get_training_testing(self, percent_for_testing):
+        """
+        Returns a randomized set of training and testing data based
+        on the percent given
+        """
+        random.shuffle(self.contents)
+        cutoff_index = int(len(self.contents)*percent_for_testing)
+        dic = {}
+        dic['test'] = self.contents[0:cutoff_index]
+        dic['train'] = self.contents[cutoff_index:]
+
+        return dic
+
+    def get_cross_validation_chunks(self, number_of_chunks):
+        """
+        Breaks up the data into N chunks
+        """
+        random.shuffle(self.contents)
+        count_per_chunk = len(self.contents)//number_of_chunks
+        overflow_count = len(self.contents)%number_of_chunks
+
+        cross_validation_chunks = []
+        start = 0
+        end = count_per_chunk
+        for i in range(number_of_chunks):
+            if i < overflow_count:
+                end += 1
+
+            cross_validation_chunks.append(self.contents[start:end])
+            start = end
+            end += count_per_chunk
+
+        return cross_validation_chunks
