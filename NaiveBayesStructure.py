@@ -42,7 +42,7 @@ def _transform_csv_contents(csv_contents, index_dict, unique_words_count):
             word_index = index_dict[word]
             word_structure[word_index] = 1
 
-        file_contents.append([word_structure, category_index])
+        file_contents.append([word_structure, category_index, words])
 
     return file_contents
 
