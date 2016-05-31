@@ -4,7 +4,7 @@ automation.py
 Contains functios for automating cross validation and
 training/testing randomization
 """
-import numpy
+import numpy, copy
 
 import naive_bayes_structure_comparison as nbs_comparison
 
@@ -26,6 +26,26 @@ def automate_randomization(naive_bayes_structure, percent_for_testing, times_to_
         print(results)
 
 
+def _get_threshold_data(test_data, train_data, naive_bayes_structure, threshold):
+    """
+    Runs the comparison on the data at various thresholds
+    """
+    results = []
+    curr_threshold = threshold.start
+    while curr_threshold <= threshold.end:
+        print("current threshold: " + str(curr_threshold))
+        #Remove values for thresholds in training and testing
+        curr_test_data = _remove_columns(test_data, naive_bayes_structure, curr_threshold)
+        curr_train_data = _remove_columns(train_data, naive_bayes_structure, curr_threshold)
+        
+        curr_result = nbs_comparison.compare_structure(curr_test_data, curr_train_data)
+        results.append(curr_result)
+
+        curr_threshold += threshold.increment
+
+    return results
+
+
 def _randomize(naive_bayes_structure, percent_for_testing, threshold):
     """
     Randoimzed training and testing data on the give input
@@ -35,21 +55,40 @@ def _randomize(naive_bayes_structure, percent_for_testing, threshold):
     train_data = data_dict['train']
     if threshold is None:
         return [nbs_comparison.compare_structure(test_data, train_data)]
+    else:
+        return _get_threshold_data(test_data, train_data, naive_bayes_structure, threshold)
 
-    results = []
-    curr_threshold = threshold.start
-    while curr_threshold <= threshold.end:
-        print("current threshold: " + str(curr_threshold))
-        #Remove values for thresholds in training and testing
-        curr_test_data = _remove_columns(test_data, naive_bayes_structure, curr_threshold)
-        curr_train_data = _remove_columns(train_data, naive_bayes_structure, curr_threshold)
 
-        curr_result = nbs_comparison.compare_structure(curr_test_data, curr_train_data)
-        results.append(curr_result)
+def _remove_columns(data, nbs, threshold):
+    """
+    Removes the columns from the data structure that don't meet the threshold
+    """
+    ignore_columns = _make_ignore_columns(nbs, threshold)
+    new_data = []
 
-        curr_threshold += threshold.increment
+    for content in data:
+        row = copy.copy(content[0])
+        for col in ignore_columns:
+            row.pop(col)
 
-    return results
+        new_content = [row]
+        new_content.extend(content[1:])
+        new_data.append(new_content)
+    
+    return new_data
+
+
+def _make_ignore_columns(nbs, threshold):
+    """
+    Removes the columns that don't meet the threshold
+    """
+    ignore_columns = []
+    for col in nbs.column_thresholds:#reminder that nbs.column_thresholds is sorted by threshold
+        if col.threshold > threshold:
+            break
+        ignore_columns.append(col.column)
+
+    return sorted(ignore_columns, reverse=True)
 
 
 def automate_cross_validation(naive_bayes_structure, chunks, times_to_run, threshold):
@@ -75,6 +114,10 @@ def _cross_validation(naive_bayes_structure, chunks, threshold):
         for x in range(len(cross_validation_chunks)):
             if x != i:
                 train_data.extend(cross_validation_chunks[x])
-        results.append(nbs_comparison.compare_structure(test_data, train_data))
+        
+        if threshold is None:
+            results.append([nbs_comparison.compare_structure(test_data, train_data)])
+        else:
+            results.append(_get_threshold_data(test_data, train_data, naive_bayes_structure, threshold))
 
     return results
