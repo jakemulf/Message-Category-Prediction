@@ -9,6 +9,18 @@ import numpy, copy
 import naive_bayes_structure_comparison as nbs_comparison
 
 
+class PlotPoint:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self):
+        return str(self.x) + ',' + str(self.y)
+
+
 class Threshold:
     def __init__(self, start, end, increment):
         self.start = start
@@ -39,7 +51,7 @@ def _get_threshold_data(test_data, train_data, naive_bayes_structure, threshold)
         curr_train_data = _remove_columns(train_data, naive_bayes_structure, curr_threshold)
         
         curr_result = nbs_comparison.compare_structure(curr_test_data, curr_train_data)
-        results.append(curr_result)
+        results.append(PlotPoint(curr_threshold,curr_result))
 
         curr_threshold += threshold.increment
 
@@ -54,7 +66,7 @@ def _randomize(naive_bayes_structure, percent_for_testing, threshold):
     test_data = data_dict['test']
     train_data = data_dict['train']
     if threshold is None:
-        return [nbs_comparison.compare_structure(test_data, train_data)]
+        return [PlotPoint(0,nbs_comparison.compare_structure(test_data, train_data))]
     else:
         return _get_threshold_data(test_data, train_data, naive_bayes_structure, threshold)
 
@@ -116,7 +128,7 @@ def _cross_validation(naive_bayes_structure, chunks, threshold):
                 train_data.extend(cross_validation_chunks[x])
         
         if threshold is None:
-            results.append([nbs_comparison.compare_structure(test_data, train_data)])
+            results.append([PlotPoint(0,nbs_comparison.compare_structure(test_data, train_data))])
         else:
             results.append(_get_threshold_data(test_data, train_data, naive_bayes_structure, threshold))
 
