@@ -5,8 +5,12 @@ Contains functios for automating cross validation and
 training/testing randomization
 """
 import numpy, copy
+from multiprocessing import Process, Queue, cpu_count
 
 import naive_bayes_structure_comparison as nbs_comparison
+
+cpus = cpu_count()
+PROCESS_LIMIT = cpus if cpus is not None else 1
 
 
 class PlotPoint:
@@ -38,24 +42,43 @@ def automate_randomization(naive_bayes_structure, percent_for_testing, times_to_
         print(results)
 
 
+def _eval_threshold(test_data, train_data, naive_bayes_structure, curr_threshold, results):
+    """
+    Evaluates the comparison of the data at the given threshold
+    """
+    curr_test_data = _remove_columns(test_data, naive_bayes_structure, curr_threshold)
+    curr_train_data = _remove_columns(train_data, naive_bayes_structure, curr_threshold)
+        
+    curr_result = nbs_comparison.compare_structure(curr_test_data, curr_train_data)
+    results.put(PlotPoint(curr_threshold,curr_result))
+
+
 def _get_threshold_data(test_data, train_data, naive_bayes_structure, threshold):
     """
     Runs the comparison on the data at various thresholds
     """
-    results = []
+    results = Queue()
     curr_threshold = threshold.start
+    processes = []
     while curr_threshold <= threshold.end:
-        print("current threshold: " + str(curr_threshold))
-        #Remove values for thresholds in training and testing
-        curr_test_data = _remove_columns(test_data, naive_bayes_structure, curr_threshold)
-        curr_train_data = _remove_columns(train_data, naive_bayes_structure, curr_threshold)
-        
-        curr_result = nbs_comparison.compare_structure(curr_test_data, curr_train_data)
-        results.append(PlotPoint(curr_threshold,curr_result))
-
+        #Make new process for _eval_threshold
+        p = Process(target=_eval_threshold, args=(test_data, train_data, naive_bayes_structure, curr_threshold, results,))
+        processes.append(p)
         curr_threshold += threshold.increment
+    
+    i = 0
+    while i < len(processes):
+        print('process ' + str(i))
+        start = i
+        end = i+PROCESS_LIMIT
+        for j in range(start, min(end, len(processes))):
+            processes[j].start()
+        for j in range(start, min(end, len(processes))):
+            processes[j].join()
 
-    return results
+        i += PROCESS_LIMIT
+
+    return [results.get() for p in processes]
 
 
 def _randomize(naive_bayes_structure, percent_for_testing, threshold):
