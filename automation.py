@@ -4,8 +4,9 @@ automation.py
 Contains functios for automating cross validation and
 training/testing randomization
 """
-import numpy, copy
+import numpy, copy, random
 from multiprocessing import Process, Queue, cpu_count
+import matplotlib.pyplot as plt
 
 import naive_bayes_structure_comparison as nbs_comparison
 
@@ -22,7 +23,7 @@ class PlotPoint:
         return self.__str__()
 
     def __str__(self):
-        return str(self.x) + ',' + str(self.y)
+        return '(' + str(self.x) + ',' + str(self.y) + ')'
 
 
 class Threshold:
@@ -32,16 +33,83 @@ class Threshold:
         self.increment = increment
 
 
+_random_color = lambda: [random.random(), random.random(), random.random()]
+def graph_results(results):
+    """
+    Creates a plot graph for the results
+    """
+    plt.clf()
+    for result in results:
+        sorted(result, key=lambda a: a.x)
+        color = _random_color()
+        plt.plot([point.x for point in result], [point.y for point in result], c=_random_color())
+
+    plt.show()
+
+
+###Functions for randomization###
 def automate_randomization(naive_bayes_structure, percent_for_testing, times_to_run, threshold):
     """
     Runs randomized training/testing data on the give input
     """
+    results = []
     for i in range(times_to_run):
         print('run: ' + str(i))
-        results = _randomize(naive_bayes_structure, percent_for_testing, threshold)
-        print(results)
+        results.append(_randomize(naive_bayes_structure, percent_for_testing, threshold))
+
+    graph_results(results)
 
 
+def _randomize(naive_bayes_structure, percent_for_testing, threshold):
+    """
+    Randoimzed training and testing data on the give input
+    """
+    data_dict = naive_bayes_structure.get_training_testing(percent_for_testing)
+    test_data = data_dict['test']
+    train_data = data_dict['train']
+    if threshold is None:
+        return [PlotPoint(0,nbs_comparison.compare_structure(test_data, train_data))]
+    else:
+        return _get_threshold_data(test_data, train_data, naive_bayes_structure, threshold)
+
+
+###Functions for cross validation###
+def automate_cross_validation(naive_bayes_structure, chunks, times_to_run, threshold):
+    """
+    Runs cross validation multiple times on the given input
+    """
+    results = []
+    for i in range(times_to_run):
+        print('run: ' + str(i))
+        results.append(_cross_validation(naive_bayes_structure, chunks, threshold))
+
+    for result in results:
+        graph_results(result)
+
+
+def _cross_validation(naive_bayes_structure, chunks, threshold):
+    """
+    Performs cross validation on the data input
+    """
+    results = []
+    cross_validation_chunks = naive_bayes_structure.get_cross_validation_chunks(chunks)
+    for i in range(chunks):
+        print('chunk: ' + str(i))
+        test_data = cross_validation_chunks[i]
+        train_data = []
+        for x in range(len(cross_validation_chunks)):
+            if x != i:
+                train_data.extend(cross_validation_chunks[x])
+        
+        if threshold is None:
+            results.append([PlotPoint(0,nbs_comparison.compare_structure(test_data, train_data))])
+        else:
+            results.append(_get_threshold_data(test_data, train_data, naive_bayes_structure, threshold))
+
+    return results
+
+
+###Shared functions###
 def _eval_threshold(test_data, train_data, naive_bayes_structure, curr_threshold, results):
     """
     Evaluates the comparison of the data at the given threshold
@@ -81,19 +149,6 @@ def _get_threshold_data(test_data, train_data, naive_bayes_structure, threshold)
     return [results.get() for p in processes]
 
 
-def _randomize(naive_bayes_structure, percent_for_testing, threshold):
-    """
-    Randoimzed training and testing data on the give input
-    """
-    data_dict = naive_bayes_structure.get_training_testing(percent_for_testing)
-    test_data = data_dict['test']
-    train_data = data_dict['train']
-    if threshold is None:
-        return [PlotPoint(0,nbs_comparison.compare_structure(test_data, train_data))]
-    else:
-        return _get_threshold_data(test_data, train_data, naive_bayes_structure, threshold)
-
-
 def _remove_columns(data, nbs, threshold):
     """
     Removes the columns from the data structure that don't meet the threshold
@@ -124,35 +179,3 @@ def _make_ignore_columns(nbs, threshold):
         ignore_columns.append(col.column)
 
     return sorted(ignore_columns, reverse=True)
-
-
-def automate_cross_validation(naive_bayes_structure, chunks, times_to_run, threshold):
-    """
-    Runs cross validation multiple times on the given input
-    """
-    for i in range(times_to_run):
-        print('run: ' + str(i))
-        results = _cross_validation(naive_bayes_structure, chunks, threshold)
-        print(results)
-
-
-def _cross_validation(naive_bayes_structure, chunks, threshold):
-    """
-    Performs cross validation on the data input
-    """
-    results = []
-    cross_validation_chunks = naive_bayes_structure.get_cross_validation_chunks(chunks)
-    for i in range(chunks):
-        print('chunk: ' + str(i))
-        test_data = cross_validation_chunks[i]
-        train_data = []
-        for x in range(len(cross_validation_chunks)):
-            if x != i:
-                train_data.extend(cross_validation_chunks[x])
-        
-        if threshold is None:
-            results.append([PlotPoint(0,nbs_comparison.compare_structure(test_data, train_data))])
-        else:
-            results.append(_get_threshold_data(test_data, train_data, naive_bayes_structure, threshold))
-
-    return results
