@@ -4,7 +4,7 @@ automation.py
 Contains functios for automating cross validation and
 training/testing randomization
 """
-import numpy, copy, random
+import numpy, copy, random, os
 from multiprocessing import Process, Queue, cpu_count
 import matplotlib.pyplot as plt
 
@@ -12,6 +12,8 @@ import naive_bayes_structure_comparison as nbs_comparison
 
 cpus = cpu_count()
 PROCESS_LIMIT = cpus if cpus is not None else 1
+
+PICTURE_DESTINATION = 'pictures/'
 
 
 class PlotPoint:
@@ -34,21 +36,28 @@ class Threshold:
 
 
 _random_color = lambda: [random.random(), random.random(), random.random()]
-def graph_results(results):
+def graph_results(results, file_name):
     """
     Creates a plot graph for the results
     """
     plt.clf()
+    plt.ylim(-.1,1.1)
     for result in results:
         sorted(result, key=lambda a: a.x)
         color = _random_color()
         plt.plot([point.x for point in result], [point.y for point in result], c=_random_color())
 
-    plt.show()
+    plt.xlabel('Threshold')
+    plt.ylabel('Prediction Rate') 
+
+    if not os.path.isdir(PICTURE_DESTINATION):
+        os.mkdir(PICTURE_DESTINATION)
+
+    plt.savefig(PICTURE_DESTINATION + file_name)
 
 
 ###Functions for randomization###
-def automate_randomization(naive_bayes_structure, percent_for_testing, times_to_run, threshold):
+def automate_randomization(naive_bayes_structure, percent_for_testing, times_to_run, threshold, file_name):
     """
     Runs randomized training/testing data on the give input
     """
@@ -57,7 +66,7 @@ def automate_randomization(naive_bayes_structure, percent_for_testing, times_to_
         print('run: ' + str(i))
         results.append(_randomize(naive_bayes_structure, percent_for_testing, threshold))
 
-    graph_results(results)
+    graph_results(results, file_name + '_randomized.png')
 
 
 def _randomize(naive_bayes_structure, percent_for_testing, threshold):
@@ -74,7 +83,7 @@ def _randomize(naive_bayes_structure, percent_for_testing, threshold):
 
 
 ###Functions for cross validation###
-def automate_cross_validation(naive_bayes_structure, chunks, times_to_run, threshold):
+def automate_cross_validation(naive_bayes_structure, chunks, times_to_run, threshold, file_name):
     """
     Runs cross validation multiple times on the given input
     """
@@ -83,8 +92,8 @@ def automate_cross_validation(naive_bayes_structure, chunks, times_to_run, thres
         print('run: ' + str(i))
         results.append(_cross_validation(naive_bayes_structure, chunks, threshold))
 
-    for result in results:
-        graph_results(result)
+    for i in range(len(results)):
+        graph_results(results[i], file_name + '_chunk_' + str(i) + '.png')
 
 
 def _cross_validation(naive_bayes_structure, chunks, threshold):
