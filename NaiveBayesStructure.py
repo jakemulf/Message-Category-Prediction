@@ -172,10 +172,28 @@ def _make_thresholds(counts):
     return thresholds
 
 
+def make_update_dict(column_thresholds):
+    """
+    makes a dict such that update_dict[new_col] -> curr_col
+    """
+    update_dict = {}
+    for i in range(len(column_thresholds)):
+        update_dict[i] = column_thresholds[i].column
+
+    return update_dict
+
+
 class ColumnThreshold:
     def __init__(self, column, threshold):
         self.column = column
         self.threshold = threshold
+
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self):
+        return '(' + str(self.column) + ', ' + str(self.threshold) + ')'
 
 
 class CSVRow:
@@ -192,7 +210,36 @@ class NaiveBayesStructure:
         self.index_dict = index_dict
 
         self.column_thresholds = make_column_thresholds(contents)
+        self._update_contents()
 
+    def _update_contents(self):
+        """
+        Sorts column contents by threshold
+        """
+        update_dict = make_update_dict(self.column_thresholds)
+        self._update_column_thresholds()
+
+        for message in self.contents:
+            row = message[0]
+            overwritten = {}
+            for i in range(len(row)):
+                new_row = update_dict[i]
+                overwritten[i] = row[i]
+                if new_row in overwritten:
+                    val = overwritten[new_row]
+                else:
+                    val = row[new_row]
+
+                row[i] = val
+
+
+    def _update_column_thresholds(self):
+        """
+        Updates the column threshold to order the columns with the threshold
+        """
+        for i in range(len(self.column_thresholds)):
+            self.column_thresholds[i].column = i
+    
     def get_training_testing(self, percent_for_testing):
         """
         Returns a randomized set of training and testing data based
