@@ -43,7 +43,7 @@ def graph_results(results, file_name):
     plt.clf()
     plt.ylim(-.1,1.1)
     for result in results:
-        sorted(result, key=lambda a: a.x)
+        result.sort(key=lambda a: a.x)
         color = _random_color()
         plt.plot([point.x for point in result], [point.y for point in result], c=_random_color())
 
@@ -151,39 +151,35 @@ def _eval_threshold(test_data, train_data, nbs, curr_threshold, results):
     """
     Evaluates the comparison of the data at the given threshold
     """
-    ignore_columns = _make_ignore_columns(nbs, curr_threshold)
-    curr_test_data = _remove_columns(test_data, nbs, curr_threshold, ignore_columns)
-    curr_train_data = _remove_columns(train_data, nbs, curr_threshold, ignore_columns)
+    start_index = _make_start_index(nbs, curr_threshold)
+    curr_test_data = _remove_columns(test_data, nbs, start_index)
+    curr_train_data = _remove_columns(train_data, nbs, start_index)
     curr_result = nbs_comparison.compare_structure(curr_test_data, curr_train_data)
     results.put(PlotPoint(curr_threshold,curr_result))
 
 
-def _remove_columns(data, nbs, threshold, ignore_columns):
+def _remove_columns(data, nbs, start_index):
     """
     Removes the columns from the data structure that don't meet the threshold
     """
     new_data = []
 
     for content in data:
-        row = copy.copy(content[0])
-        for col in ignore_columns:
-            row.pop(col)
-
-        new_content = [row]
+        new_content = [content[0][start_index:]]
         new_content.extend(content[1:])
         new_data.append(new_content)
     
     return new_data
 
 
-def _make_ignore_columns(nbs, threshold):
+def _make_start_index(nbs, threshold):
     """
-    Removes the columns that don't meet the threshold
+    Returns the starting column to slice
     """
-    ignore_columns = []
+    start_index = 0
     for col in nbs.column_thresholds:#reminder that nbs.column_thresholds is sorted by threshold
         if col.threshold > threshold:
+            start_index = col.column
             break
-        ignore_columns.append(col.column)
     
-    return sorted(ignore_columns, reverse=True)
+    return start_index
