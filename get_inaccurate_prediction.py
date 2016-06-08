@@ -67,6 +67,20 @@ def average_message_length(messages, indexs, in_indexs):
     return mean(lengths)
 
 
+def _predict_results(d1, d2):
+    """
+    Determines the ratio of accurate predictions
+    """
+    correct = 0
+    total = min(len(d1),len(d2))
+    for i in range(total):
+        if d1[i] == d2[i]:
+            correct += 1
+
+    return correct/total
+
+
+
 def main(test_data, train_data, threshold):
     unique_words, messages, categories = make_2d_array.make_messages([test_data, train_data])
     arrays = make_2d_array.make_message_arrays(unique_words, messages, None, post_filter_functions.filter_by_features)
@@ -76,9 +90,7 @@ def main(test_data, train_data, threshold):
     predicted = gnb.fit(data[0][1], data[1][1]).predict(data[0][0])
     actual = data[1][0]
 
-    print('Actual:Predicted categories')
-    print('Action, Community, Information')
-    print(get_confusion_matrix(actual, predicted))
+    print(_predict_results(predicted, actual))
 
 
 if __name__ == '__main__':

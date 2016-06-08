@@ -4,5 +4,11 @@
 #pycache files
 *.pyc
 
-#generated files
-cross_validation_pictures/*
+#test script
+test.py
+
+#pictures
+pictures/*
+
+#TODO
+TODO
