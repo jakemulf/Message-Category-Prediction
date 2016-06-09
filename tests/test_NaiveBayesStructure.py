@@ -65,3 +65,19 @@ class TestNBS(unittest.TestCase):
         self.assertTrue(within(c1, 1))
         self.assertTrue(within(c2, 1))
         self.assertTrue(within(c3, 1))
+
+    def test_column_thresholds(self):
+        """
+        Test to make sure the column thresholds are sorted by
+        threshold and the column index is sorted
+        """
+        last_threshold = 0
+        for i in range(len(self.all_struct.column_thresholds)):
+            if self.all_struct.column_thresholds[i].column != i:
+                self.fail('Expected column to be {} but found {}'.format(
+                    i, self.all_struct.column_thresholds[i].column))
+
+            if self.all_struct.column_thresholds[i].threshold >= last_threshold:
+                last_threshold = self.all_struct.column_thresholds[i].threshold
+            else:
+                self.fail('Thresholds not in sorted order')
