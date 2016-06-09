@@ -8,13 +8,6 @@ from sklearn.naive_bayes import MultinomialNB
 from numpy import array
 
 
-def compare_class(test, train):
-    """
-    Compares 2 NaiveBayesStructure contents
-    """
-    return compare_structure(test.contents, train.contents)
-
-
 def compare_structure(test, train):
     """
     Compares training and testing data for accuracy
