@@ -5,7 +5,7 @@
 *.pyc
 
 #test script
-test.py
+script.py
 
 #pictures
 pictures/*
