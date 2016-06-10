@@ -29,7 +29,6 @@ def within(lst, dist):
     return True
 
 
-
 class TestNBS(unittest.TestCase):
     all_file = 'data/all.csv'
 

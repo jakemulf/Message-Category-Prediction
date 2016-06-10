@@ -23,6 +23,7 @@ class TestComparison(unittest.TestCase):
         """
         test = self.all_struct.contents[0:543]
         train = self.all_struct.contents[543:]
-        val = compare.compare_structure(test, train)
+        test, train = compare.compare_structure(test, train)
+        val = compare.predict_accuracy(test, train)
 
         self.assertEqual(val, DEFAULT_VALUE)

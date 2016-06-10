@@ -16,12 +16,12 @@ def compare_structure(test, train):
     np_test = array(test)
     np_train = array(train)
 
-    return _compare_info(np_test, np_train)
+    return _create_prediction_test(np_test, np_train)
 
 
-def _compare_info(np_test, np_train):
+def _create_prediction_test(np_test, np_train):
     """
-    Makes the MNB class to do the prediction
+    Makes the prediction for the test category
     """
     test_messages = np_test[:,0]
     test_category = np_test[:,1]
@@ -32,10 +32,10 @@ def _compare_info(np_test, np_train):
     gnb = MultinomialNB()
     prediction = gnb.fit(list(train_messages), list(train_category)).predict(list(test_messages))
 
-    return _predict_results(prediction, test_category)
+    return prediction, test_category
 
 
-def _predict_results(d1, d2):
+def predict_accuracy(d1, d2):
     """
     Determines the ratio of accurate predictions
     """
@@ -46,3 +46,15 @@ def _predict_results(d1, d2):
             correct += 1
 
     return correct/total
+
+
+def get_unpredicted(d1, d2):
+    """
+    Gets the indexs of unpredicted results
+    """
+    incorrect = []
+    for i in range(min(len(d1),len(d2))):
+        if d1[i] != d2[i]:
+            incorrect.append(i)
+
+    return incorrect
