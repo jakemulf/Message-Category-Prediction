@@ -56,6 +56,32 @@ def graph_results(results, file_name):
     plt.savefig(PICTURE_DESTINATION + file_name)
 
 
+def process_results_top(results, func, plot_point):
+    """
+    Applies the function to the results structure from automate_cross_validation
+    """
+    for result in results:
+        process_results(result, func, plot_point)
+
+
+def process_results(results, func, plot_point):
+    """
+    Applies the function to the results structure from automate_randomization,
+    or the inner structure of automate_cross_validation
+    """
+    for result in results:
+        prediction, test = result[1]
+        val = func(prediction, test)
+        if plot_point:
+            if type(val) is list:
+                for v in val:
+                    result.append(PlotPoint(result[0], v))
+            else:
+                result.append(PlotPoint(result[0], val))
+        else:
+            result.append(val)
+
+
 ###Functions for randomization###
 def automate_randomization(nbs, percent_for_testing, times_to_run, threshold):
     """
@@ -77,8 +103,8 @@ def _randomize(nbs, percent_for_testing, threshold):
     test_data = data_dict['test']
     train_data = data_dict['train']
     if threshold is None:
-        test, train = nbs_comparison.compare_structure(test_data, train_data)
-        return [(0, (test, train))]
+        prediction, test = nbs_comparison.compare_structure(test_data, train_data)
+        return [(0, (prediction, test))]
     else:
         return _get_threshold_data(test_data, train_data, nbs, threshold)
 
@@ -111,8 +137,8 @@ def _cross_validation(nbs, chunks, threshold):
                 train_data.extend(cross_validation_chunks[x])
         
         if threshold is None:
-            test, train = nbs_comparison.compare_structure(test_data, train_data)
-            results.append([(0, (test, train))])
+            prediction, test = nbs_comparison.compare_structure(test_data, train_data)
+            results.append([(0, (prediction, test))])
         else:
             results.append(_get_threshold_data(test_data, train_data, nbs, threshold))
 
@@ -156,8 +182,8 @@ def _eval_threshold(test_data, train_data, nbs, curr_threshold, results):
     start_index = _make_start_index(nbs, curr_threshold)
     curr_test_data = _remove_columns(test_data, nbs, start_index)
     curr_train_data = _remove_columns(train_data, nbs, start_index)
-    test, train = nbs_comparison.compare_structure(curr_test_data, curr_train_data)
-    curr_result = (test, train)
+    prediction, test = nbs_comparison.compare_structure(curr_test_data, curr_train_data)
+    curr_result = (prediction, test)
     results.put((curr_threshold,curr_result))
 
 
