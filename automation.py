@@ -57,9 +57,15 @@ def graph_results(results, file_name):
     plt.clf()
     plt.ylim(-.1,1.1)
     for result in results:
-        result.sort(key=lambda a: a.x)
+        plots = []
+        for e in result:
+            data = e.get_plot_points()
+            if data is not None:
+                plots.append(data)
+
+        plots.sort(key = lambda x: x[0])
         color = _random_color()
-        plt.plot([point.x for point in result], [point.y for point in result], c=_random_color())
+        plt.plot([point[0] for point in plots], [point[1] for point in plots], c=_random_color())
 
     plt.xlabel('Threshold')
     plt.ylabel('Prediction Rate') 
