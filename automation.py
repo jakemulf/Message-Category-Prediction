@@ -56,8 +56,34 @@ def graph_results(results, file_name):
     plt.savefig(PICTURE_DESTINATION + file_name)
 
 
+def process_results_top(results, func, plot_point):
+    """
+    Applies the function to the results structure from automate_cross_validation
+    """
+    for result in results:
+        process_results(result, func, plot_point)
+
+
+def process_results(results, func, plot_point):
+    """
+    Applies the function to the results structure from automate_randomization,
+    or the inner structure of automate_cross_validation
+    """
+    for result in results:
+        prediction, test = result[1]
+        val = func(prediction, test)
+        if plot_point:
+            if type(val) is list:
+                for v in val:
+                    result.append(PlotPoint(result[0], v))
+            else:
+                result.append(PlotPoint(result[0], val))
+        else:
+            result.append(val)
+
+
 ###Functions for randomization###
-def automate_randomization(nbs, percent_for_testing, times_to_run, threshold, file_name):
+def automate_randomization(nbs, percent_for_testing, times_to_run, threshold):
     """
     Runs randomized training/testing data on the give input
     """
@@ -66,7 +92,7 @@ def automate_randomization(nbs, percent_for_testing, times_to_run, threshold, fi
         print('run: ' + str(i))
         results.append(_randomize(nbs, percent_for_testing, threshold))
 
-    graph_results(results, file_name + '_randomized.png')
+    return results
 
 
 def _randomize(nbs, percent_for_testing, threshold):
@@ -77,13 +103,14 @@ def _randomize(nbs, percent_for_testing, threshold):
     test_data = data_dict['test']
     train_data = data_dict['train']
     if threshold is None:
-        return [PlotPoint(0,nbs_comparison.compare_structure(test_data, train_data))]
+        prediction, test = nbs_comparison.compare_structure(test_data, train_data)
+        return [(0, (prediction, test))]
     else:
         return _get_threshold_data(test_data, train_data, nbs, threshold)
 
 
 ###Functions for cross validation###
-def automate_cross_validation(nbs, chunks, times_to_run, threshold, file_name):
+def automate_cross_validation(nbs, chunks, times_to_run, threshold):
     """
     Runs cross validation multiple times on the given input
     """
@@ -92,8 +119,7 @@ def automate_cross_validation(nbs, chunks, times_to_run, threshold, file_name):
         print('run: ' + str(i))
         results.append(_cross_validation(nbs, chunks, threshold))
 
-    for i in range(len(results)):
-        graph_results(results[i], file_name + '_chunk_' + str(i) + '.png')
+    return results
 
 
 def _cross_validation(nbs, chunks, threshold):
@@ -111,7 +137,8 @@ def _cross_validation(nbs, chunks, threshold):
                 train_data.extend(cross_validation_chunks[x])
         
         if threshold is None:
-            results.append([PlotPoint(0,nbs_comparison.compare_structure(test_data, train_data))])
+            prediction, test = nbs_comparison.compare_structure(test_data, train_data)
+            results.append([(0, (prediction, test))])
         else:
             results.append(_get_threshold_data(test_data, train_data, nbs, threshold))
 
@@ -128,7 +155,8 @@ def _get_threshold_data(test_data, train_data, nbs, threshold):
     processes = []
     while curr_threshold <= threshold.end:
         #Make new process for _eval_threshold
-        p = Process(target=_eval_threshold, args=(test_data, train_data, nbs, curr_threshold, results,))
+        p = Process(target=_eval_threshold, args=(
+                    test_data, train_data, nbs, curr_threshold, results,))
         processes.append(p)
         curr_threshold += threshold.increment
     
@@ -154,8 +182,9 @@ def _eval_threshold(test_data, train_data, nbs, curr_threshold, results):
     start_index = _make_start_index(nbs, curr_threshold)
     curr_test_data = _remove_columns(test_data, nbs, start_index)
     curr_train_data = _remove_columns(train_data, nbs, start_index)
-    curr_result = nbs_comparison.compare_structure(curr_test_data, curr_train_data)
-    results.put(PlotPoint(curr_threshold,curr_result))
+    prediction, test = nbs_comparison.compare_structure(curr_test_data, curr_train_data)
+    curr_result = (prediction, test)
+    results.put((curr_threshold,curr_result))
 
 
 def _remove_columns(data, nbs, start_index):
