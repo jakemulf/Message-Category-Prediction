@@ -80,3 +80,24 @@ class TestNBS(unittest.TestCase):
                 last_threshold = self.all_struct.column_thresholds[i].threshold
             else:
                 self.fail('Thresholds not in sorted order')
+
+    def test_get_data_errors(self):
+        """
+        Test to make sure get_cross_validation_chunks throws an exception when called with <= 1,
+        and get_training_testing throws an error with any number outside of (0,1) (exclusive)
+        """
+        with self.assertRaises(Exception):
+            self.all_struct.get_cross_validation_chunks(-1)
+        with self.assertRaises(Exception):
+            self.all_struct.get_cross_validation_chunks(0)
+        with self.assertRaises(Exception):
+            self.all_struct.get_cross_validation_chunks(1)
+        self.assertIsNotNone(self.all_struct.get_cross_validation_chunks(2))
+
+        with self.assertRaises(Exception):
+            self.all_struct.get_trainin_testing(-1)
+        with self.assertRaises(Exception):
+            self.all_struct.get_cross_validation_chunks(0)
+        with self.assertRaises(Exception):
+            self.all_struct.get_cross_validation_chunks(1)
+        self.assertIsNotNone(self.all_struct.get_training_testing(.5))

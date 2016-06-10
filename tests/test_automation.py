@@ -19,20 +19,20 @@ class TestAutomation(unittest.TestCase):
         Tests to make sure the format of automate_cross_validation is correct
         """
         no_thres_res = automation.automate_cross_validation(
-                       self.all_struct, 2, 2, None, nbs_comparison.predict_accuracy)
+                       self.all_struct, 2, 1, None, nbs_comparison.predict_accuracy)
 
-        self.assertEqual(len(no_thres_res), 2) #Length equal to runs
+        self.assertEqual(len(no_thres_res), 1) #Length equal to runs
         for res in no_thres_res:
             self.assertEqual(len(res), 2) #Length equal to chunks
 
         thres_res = automation.automate_cross_validation(
-                    self.all_struct, 2, 2, automation.Threshold(0,1,.51), nbs_comparison.predict_accuracy)
+                    self.all_struct, 2, 1, automation.Threshold(0,1,.49), nbs_comparison.predict_accuracy)
 
-        self.assertEqual(len(thres_res), 2) #Length equal to runs
+        self.assertEqual(len(thres_res), 1) #Length equal to runs
         for res in thres_res:
             self.assertEqual(len(res), 2) #Length equal to chunks
             for r in res:
-                self.assertEqual(len(r), 2) #Length equal to number of thresholds
+                self.assertEqual(len(r), 3) #Length equal to number of thresholds
 
     def test_automate_randomization(self):
         """
@@ -44,9 +44,9 @@ class TestAutomation(unittest.TestCase):
         self.assertEqual(len(no_thres_res), 2) #Length equal to runs
 
         thres_res = automation.automate_randomization(
-                    self.all_struct, .1, 2, automation.Threshold(0,1,.51), nbs_comparison.predict_accuracy)
+                    self.all_struct, .1, 1, automation.Threshold(0,1,.51), nbs_comparison.predict_accuracy)
 
-        self.assertEqual(len(thres_res), 2) #Length equal to runs
+        self.assertEqual(len(thres_res), 1) #Length equal to runs
         for res in thres_res:
             self.assertEqual(len(res), 2) #Length equal to number of thresholds
 

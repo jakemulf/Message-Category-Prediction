@@ -245,6 +245,9 @@ class NaiveBayesStructure:
         Returns a randomized set of training and testing data based
         on the percent given
         """
+        if percent_for_testing <= 0 or percent_for_testing >= 1:
+            raise Exception
+
         random.shuffle(self.contents)
         cutoff_index = int(len(self.contents)*percent_for_testing)
         dic = {}
@@ -257,6 +260,9 @@ class NaiveBayesStructure:
         """
         Breaks up the data into N chunks
         """
+        if number_of_chunks <= 1:
+            raise Exception
+
         random.shuffle(self.contents)
         count_per_chunk = len(self.contents)//number_of_chunks
         overflow_count = len(self.contents)%number_of_chunks
