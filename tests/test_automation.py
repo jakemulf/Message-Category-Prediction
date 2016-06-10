@@ -4,6 +4,7 @@ tests for automation.py
 import unittest
 
 import automation
+import naive_bayes_structure_comparison as nbs_comparison
 import NaiveBayesStructure as NBS
 
 class TestAutomation(unittest.TestCase):
@@ -12,6 +13,42 @@ class TestAutomation(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.all_struct = NBS.NaiveBayesStructure(cls.all_file)
+
+    def test_automate_cross_validation(self):
+        """
+        Tests to make sure the format of automate_cross_validation is correct
+        """
+        no_thres_res = automation.automate_cross_validation(
+                       self.all_struct, 2, 2, None, nbs_comparison.predict_accuracy)
+
+        self.assertEqual(len(no_thres_res), 2) #Length equal to runs
+        for res in no_thres_res:
+            self.assertEqual(len(res), 2) #Length equal to chunks
+
+        thres_res = automation.automate_cross_validation(
+                    self.all_struct, 2, 2, automation.Threshold(0,1,.51), nbs_comparison.predict_accuracy)
+
+        self.assertEqual(len(thres_res), 2) #Length equal to runs
+        for res in thres_res:
+            self.assertEqual(len(res), 2) #Length equal to chunks
+            for r in res:
+                self.assertEqual(len(r), 2) #Length equal to number of thresholds
+
+    def test_automate_randomization(self):
+        """
+        Tests to make sure the format of automate_randomization is correct
+        """
+        no_thres_res = automation.automate_randomization(
+                       self.all_struct, .1, 2, None, nbs_comparison.predict_accuracy)
+
+        self.assertEqual(len(no_thres_res), 2) #Length equal to runs
+
+        thres_res = automation.automate_randomization(
+                    self.all_struct, .1, 2, automation.Threshold(0,1,.51), nbs_comparison.predict_accuracy)
+
+        self.assertEqual(len(thres_res), 2) #Length equal to runs
+        for res in thres_res:
+            self.assertEqual(len(res), 2) #Length equal to number of thresholds
 
     def test_remove_columns(self):
         no_remove = automation._remove_columns(

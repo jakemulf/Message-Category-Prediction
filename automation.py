@@ -112,7 +112,7 @@ def _cross_validation(nbs, chunks, threshold, func):
         
         if threshold is None:
             test, train = nbs_comparison.compare_structure(test_data, train_data)
-            results.append((0, func(test, train)))
+            results.append([(0, func(test, train))])
         else:
             results.append(_get_threshold_data(test_data, train_data, nbs, threshold, func))
 
