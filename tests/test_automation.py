@@ -69,29 +69,33 @@ class TestAutomation(unittest.TestCase):
         since the functionality is the importance
         """
         data = [[
-            [0,(2,2)],
-            [1,(3,4)],
-            [4,(5,6)],
+            [automation.Evaluation(0,[2,2])],
+            [automation.Evaluation(1,[3,4])],
+            [automation.Evaluation(4,[5,6])],
         ]]
 
         add = lambda x, y: x + y
         automation.process_results_top(data, add, False)
 
-        for val in data[0]:
-            self.assertEqual(val[2], val[1][0] + val[1][1])
+        for lst in data[0]:
+            val = lst[0]
+            self.assertEqual(sum(val.data), val.eval_result)
+            self.assertFalse(val.plot)
     
-    def test_process_results_no_plot_point(self):
+    def test_process_results_with_plot_point(self):
         """
-        Same test as above but with a plotpoint class
+        Same test as above but with setting a plotpoint
         """
         data = [[
-            [0,(2,2)],
-            [1,(3,4)],
-            [4,(5,6)],
+            [automation.Evaluation(0,[2,2])],
+            [automation.Evaluation(1,[3,4])],
+            [automation.Evaluation(4,[5,6])],
         ]]
 
         add = lambda x, y: x + y
         automation.process_results_top(data, add, True)
 
-        for val in data[0]:
-            self.assertIsNotNone((val[2].x, val[2].y))
+        for lst in data[0]:
+            val = lst[0]
+            self.assertEqual(sum(val.data), val.eval_result)
+            self.assertTrue(val.plot)

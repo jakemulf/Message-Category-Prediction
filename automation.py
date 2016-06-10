@@ -35,6 +35,20 @@ class Threshold:
         self.increment = increment
 
 
+class Evaluation:
+    def __init__(self, threshold, data):
+        self.threshold = threshold
+        self.data = data
+        self.plot = False
+        self.eval_result = None
+
+    def get_plot_points(self):
+        if self.eval_result is not None and self.plot:
+            return (self.threshold, self.eval_result)
+        else:
+            return None
+
+
 _random_color = lambda: [random.random(), random.random(), random.random()]
 def graph_results(results, file_name):
     """
@@ -70,16 +84,17 @@ def process_results(results, func, plot_point):
     or the inner structure of automate_cross_validation
     """
     for result in results:
-        prediction, test = result[1]
-        val = func(prediction, test)
-        if plot_point:
-            if type(val) is list:
-                for v in val:
-                    result.append(PlotPoint(result[0], v))
-            else:
-                result.append(PlotPoint(result[0], val))
-        else:
-            result.append(val)
+        _process_inner_result(result, func, plot_point)
+        
+
+def _process_inner_result(result, func, plot_point):
+    """
+    Processes the inner-most list
+    """
+    for e in result:
+        prediction, result = e.data[0:2]
+        e.eval_result = func(prediction, result)
+        e.plot = plot_point
 
 
 ###Functions for randomization###
@@ -104,7 +119,7 @@ def _randomize(nbs, percent_for_testing, threshold):
     train_data = data_dict['train']
     if threshold is None:
         prediction, test = nbs_comparison.compare_structure(test_data, train_data)
-        return [(0, (prediction, test, _get_word_info(test_data)))]
+        return [Evaluation(0, (prediction, test, _get_word_info(test_data)))]
     else:
         return _get_threshold_data(test_data, train_data, nbs, threshold)
 
@@ -138,7 +153,7 @@ def _cross_validation(nbs, chunks, threshold):
         
         if threshold is None:
             prediction, test = nbs_comparison.compare_structure(test_data, train_data)
-            results.append([(0, (prediction, test, _get_word_info(test_data)))])
+            results.append([Evaluation(0, (prediction, test, _get_word_info(test_data)))])
         else:
             results.append(_get_threshold_data(test_data, train_data, nbs, threshold))
 
@@ -192,8 +207,8 @@ def _eval_threshold(test_data, train_data, nbs, curr_threshold, results):
     prediction, test = nbs_comparison.compare_structure(curr_test_data, curr_train_data)
     curr_word_info = _get_word_info(curr_test_data)
     curr_result = (prediction, test, curr_word_info)
-    #results.put((curr_threshold,curr_result))
-    results.append((curr_threshold,curr_result))
+    #results.put((curr_threshold, curr_result))
+    results.append(Evaluation(curr_threshold, curr_result))
 
 
 def _remove_columns(data, nbs, start_index):
