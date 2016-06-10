@@ -62,3 +62,36 @@ class TestAutomation(unittest.TestCase):
         self.assertEqual(len(no_remove[0][0]), len(self.all_struct.contents[0][0]))
         self.assertEqual(len(remove_some[0][0]), len(self.all_struct.contents[0][0])-500)
         self.assertEqual(len(remove_all[0][0]), 0)
+
+    def test_process_results_no_plot_point(self):
+        """
+        Tests for process results on simple data.  The full data is not needed
+        since the functionality is the importance
+        """
+        data = [[
+            [0,(2,2)],
+            [1,(3,4)],
+            [4,(5,6)],
+        ]]
+
+        add = lambda x, y: x + y
+        automation.process_results_top(data, add, False)
+
+        for val in data[0]:
+            self.assertEqual(val[2], val[1][0] + val[1][1])
+    
+    def test_process_results_no_plot_point(self):
+        """
+        Same test as above but with a plotpoint class
+        """
+        data = [[
+            [0,(2,2)],
+            [1,(3,4)],
+            [4,(5,6)],
+        ]]
+
+        add = lambda x, y: x + y
+        automation.process_results_top(data, add, True)
+
+        for val in data[0]:
+            self.assertIsNotNone((val[2].x, val[2].y))
