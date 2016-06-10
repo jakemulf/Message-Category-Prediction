@@ -104,7 +104,7 @@ def _randomize(nbs, percent_for_testing, threshold):
     train_data = data_dict['train']
     if threshold is None:
         prediction, test = nbs_comparison.compare_structure(test_data, train_data)
-        return [(0, (prediction, test))]
+        return [(0, (prediction, test, test_data))]
     else:
         return _get_threshold_data(test_data, train_data, nbs, threshold)
 
@@ -138,7 +138,7 @@ def _cross_validation(nbs, chunks, threshold):
         
         if threshold is None:
             prediction, test = nbs_comparison.compare_structure(test_data, train_data)
-            results.append([(0, (prediction, test))])
+            results.append([(0, (prediction, test, test_data))])
         else:
             results.append(_get_threshold_data(test_data, train_data, nbs, threshold))
 
@@ -150,16 +150,21 @@ def _get_threshold_data(test_data, train_data, nbs, threshold):
     """
     Runs the comparison on the data at various thresholds
     """
-    results = Queue()
+    #results = Queue()
+    results = []
     curr_threshold = threshold.start
     processes = []
     while curr_threshold <= threshold.end:
+        """
         #Make new process for _eval_threshold
         p = Process(target=_eval_threshold, args=(
                     test_data, train_data, nbs, curr_threshold, results,))
         processes.append(p)
         curr_threshold += threshold.increment
-    
+        """
+        _eval_threshold(test_data, train_data, nbs, curr_threshold, results)
+        curr_threshold += threshold.increment
+    """
     i = 0
     while i < len(processes):
         print('process ' + str(i))
@@ -173,6 +178,8 @@ def _get_threshold_data(test_data, train_data, nbs, threshold):
         i += PROCESS_LIMIT
 
     return [results.get() for p in processes]
+    """
+    return results
 
 
 def _eval_threshold(test_data, train_data, nbs, curr_threshold, results):
@@ -183,8 +190,10 @@ def _eval_threshold(test_data, train_data, nbs, curr_threshold, results):
     curr_test_data = _remove_columns(test_data, nbs, start_index)
     curr_train_data = _remove_columns(train_data, nbs, start_index)
     prediction, test = nbs_comparison.compare_structure(curr_test_data, curr_train_data)
-    curr_result = (prediction, test)
-    results.put((curr_threshold,curr_result))
+    curr_word_info = _get_word_info(curr_test_data)
+    curr_result = (prediction, test, curr_word_info)
+    #results.put((curr_threshold,curr_result))
+    results.append((curr_threshold,curr_result))
 
 
 def _remove_columns(data, nbs, start_index):
@@ -212,3 +221,14 @@ def _make_start_index(nbs, threshold):
             break
     
     return start_index
+
+
+def _get_word_info(data):
+    """
+    Returns the word info in order from the data
+    """
+    words = []
+    for val in data:
+        words.append(val[2])
+
+    return words
