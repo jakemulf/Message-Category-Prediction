@@ -104,7 +104,7 @@ def _randomize(nbs, percent_for_testing, threshold):
     train_data = data_dict['train']
     if threshold is None:
         prediction, test = nbs_comparison.compare_structure(test_data, train_data)
-        return [(0, (prediction, test, test_data))]
+        return [(0, (prediction, test, _get_word_info(test_data)))]
     else:
         return _get_threshold_data(test_data, train_data, nbs, threshold)
 
@@ -138,7 +138,7 @@ def _cross_validation(nbs, chunks, threshold):
         
         if threshold is None:
             prediction, test = nbs_comparison.compare_structure(test_data, train_data)
-            results.append([(0, (prediction, test, test_data))])
+            results.append([(0, (prediction, test, _get_word_info(test_data)))])
         else:
             results.append(_get_threshold_data(test_data, train_data, nbs, threshold))
 
