@@ -57,19 +57,19 @@ def graph_results(results, file_name):
 
 
 ###Functions for randomization###
-def automate_randomization(nbs, percent_for_testing, times_to_run, threshold, func):
+def automate_randomization(nbs, percent_for_testing, times_to_run, threshold):
     """
     Runs randomized training/testing data on the give input
     """
     results = []
     for i in range(times_to_run):
         print('run: ' + str(i))
-        results.append(_randomize(nbs, percent_for_testing, threshold, func))
+        results.append(_randomize(nbs, percent_for_testing, threshold))
 
     return results
 
 
-def _randomize(nbs, percent_for_testing, threshold, func):
+def _randomize(nbs, percent_for_testing, threshold):
     """
     Randoimzed training and testing data on the give input
     """
@@ -78,25 +78,25 @@ def _randomize(nbs, percent_for_testing, threshold, func):
     train_data = data_dict['train']
     if threshold is None:
         test, train = nbs_comparison.compare_structure(test_data, train_data)
-        return [(0, func(test, train))]
+        return [(0, (test, train))]
     else:
-        return _get_threshold_data(test_data, train_data, nbs, threshold, func)
+        return _get_threshold_data(test_data, train_data, nbs, threshold)
 
 
 ###Functions for cross validation###
-def automate_cross_validation(nbs, chunks, times_to_run, threshold, func):
+def automate_cross_validation(nbs, chunks, times_to_run, threshold):
     """
     Runs cross validation multiple times on the given input
     """
     results = []
     for i in range(times_to_run):
         print('run: ' + str(i))
-        results.append(_cross_validation(nbs, chunks, threshold, func))
+        results.append(_cross_validation(nbs, chunks, threshold))
 
     return results
 
 
-def _cross_validation(nbs, chunks, threshold, func):
+def _cross_validation(nbs, chunks, threshold):
     """
     Performs cross validation on the data input
     """
@@ -112,15 +112,15 @@ def _cross_validation(nbs, chunks, threshold, func):
         
         if threshold is None:
             test, train = nbs_comparison.compare_structure(test_data, train_data)
-            results.append([(0, func(test, train))])
+            results.append([(0, (test, train))])
         else:
-            results.append(_get_threshold_data(test_data, train_data, nbs, threshold, func))
+            results.append(_get_threshold_data(test_data, train_data, nbs, threshold))
 
     return results
 
 
 ###Shared functions###
-def _get_threshold_data(test_data, train_data, nbs, threshold, func):
+def _get_threshold_data(test_data, train_data, nbs, threshold):
     """
     Runs the comparison on the data at various thresholds
     """
@@ -130,7 +130,7 @@ def _get_threshold_data(test_data, train_data, nbs, threshold, func):
     while curr_threshold <= threshold.end:
         #Make new process for _eval_threshold
         p = Process(target=_eval_threshold, args=(
-                    test_data, train_data, nbs, curr_threshold, results, func,))
+                    test_data, train_data, nbs, curr_threshold, results,))
         processes.append(p)
         curr_threshold += threshold.increment
     
@@ -149,7 +149,7 @@ def _get_threshold_data(test_data, train_data, nbs, threshold, func):
     return [results.get() for p in processes]
 
 
-def _eval_threshold(test_data, train_data, nbs, curr_threshold, results, func):
+def _eval_threshold(test_data, train_data, nbs, curr_threshold, results):
     """
     Evaluates the comparison of the data at the given threshold
     """
@@ -157,7 +157,7 @@ def _eval_threshold(test_data, train_data, nbs, curr_threshold, results, func):
     curr_test_data = _remove_columns(test_data, nbs, start_index)
     curr_train_data = _remove_columns(train_data, nbs, start_index)
     test, train = nbs_comparison.compare_structure(curr_test_data, curr_train_data)
-    curr_result = func(test, train)
+    curr_result = (test, train)
     results.put((curr_threshold,curr_result))
 
 
